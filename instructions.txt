@@ -1,0 +1,21 @@
+-- Create products table
+CREATE TABLE products (
+  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  name TEXT NOT NULL,
+  price DECIMAL NOT NULL,
+  description TEXT NOT NULL,
+  image TEXT NOT NULL,
+  category TEXT NOT NULL,
+  is_best_seller BOOLEAN DEFAULT FALSE,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Create users table for authentication
+CREATE TABLE users (
+  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  email TEXT NOT NULL UNIQUE,
+  password TEXT NOT NULL,
+  name TEXT,
+  role TEXT DEFAULT 'user',
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
