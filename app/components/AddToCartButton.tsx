@@ -1,6 +1,9 @@
 "use client";
 
 import { useState } from "react";
+import { useCart } from "../hooks/useCart";
+import { fetchProductById } from "../lib/api";
+import { toast } from "react-hot-toast";
 
 /**
  * @param {string} productId - The ID of the product to add to cart.
@@ -9,21 +12,22 @@ import { useState } from "react";
  */
 export default function AddToCartButton({ productId }: { productId: string }) {
   const [isAdding, setIsAdding] = useState(false);
+  const { addToCart } = useCart();
   
   const handleAddToCart = async () => {
     setIsAdding(true);
     try {
-      // In a real app, this would call an API to add the product to cart
-      console.log(`Adding product ${productId} to cart`);
+      // Fetch the product details
+      const product = await fetchProductById(productId);
       
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 500));
+      // Add the product to the cart
+      addToCart(product);
       
       // Show success feedback
-      alert("Product added to cart!");
+      toast.success("Product added to cart!");
     } catch (error) {
       console.error("Failed to add to cart:", error);
-      alert("Failed to add product to cart. Please try again.");
+      toast.error("Failed to add product to cart. Please try again.");
     } finally {
       setIsAdding(false);
     }

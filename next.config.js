@@ -19,6 +19,7 @@ const nextConfig = {
       'i.imgur.com',
       'placehold.co',
       'picsum.photos',
+      'ptahsfeooaalhzwqblwf.supabase.co', // Supabase storage domain
       'cloudinary.com',
       'res.cloudinary.com',
       'images.unsplash.com'

@@ -11,15 +11,25 @@ import Link from "next/link";
 export default function HeroSlider() {
   const slides = [
     {
-      image: "/placeholder-slider1.jpg",
-      title: "MORE THAN A GAME. IT'S A LIFESTYLE.",
+      image: "/images/placeholder-slider1.jpeg",
+      title: "MORE THAN FASHION. IT'S A LIFESTYLE.",
       subtitle:
-        "Whether you're on the course or in the studio, we have what you need to play your best.",
+        "Whether you're on the street or in the studio, we have what you need to play your best.",
     },
     {
-      image: "/placeholder-slider2.jpg",
-      title: "ELEVATE YOUR PERFORMANCE",
+      image: "/images/placeholder-slider2.jpeg",
+      title: "ELEVATE YOUR FASHION",
       subtitle: "Discover the best sports gear for every athlete.",
+    },
+    {
+      image: "/images/placeholder-slider3.jpeg",
+      title: "LET YOUR FASHION SPEAK",
+      subtitle: "Discover the best sports gear for every athlete.",
+    },
+    {
+      image: "/images/placeholder-slider4.jpeg",
+      title: "",
+      subtitle: "",
     },
   ];
 

@@ -55,16 +55,30 @@ export const fetchProductByIdFromSupabase = async (id: string): Promise<Product>
 export const addProductToSupabase = async (
   product: Omit<Product, 'id' | 'created_at'>
 ): Promise<Product> => {
-  const { data, error } = await supabase
-    .from('products')
-    .insert([product])
-    .select()
-    .single();
+  try {
+    // Explicitly specify the columns we want to insert
+    const { data, error } = await supabase
+      .from('products')
+      .insert({
+        name: product.name,
+        price: product.price,
+        description: product.description,
+        image: product.image,
+        stock: product.stock,
+        is_best_seller: product.is_best_seller
+      })
+      .select()
+      .single();
 
-  if (error) {
-    throw new Error(error.message);
+    if (error) {
+      console.error('Supabase error:', error);
+      throw new Error(error.message);
+    }
+    return data;
+  } catch (error: any) {
+    console.error('Error adding product:', error);
+    throw error;
   }
-  return data;
 };
 
 /**
@@ -77,17 +91,48 @@ export const updateProductInSupabase = async (
   id: string,
   product: Partial<Product>
 ): Promise<Product> => {
-  const { data, error } = await supabase
+  try {
+    // Create an update object with only the fields that are provided
+    const updateData: any = {};
+    if (product.name !== undefined) updateData.name = product.name;
+    if (product.price !== undefined) updateData.price = product.price;
+    if (product.description !== undefined) updateData.description = product.description;
+    if (product.image !== undefined) updateData.image = product.image;
+    if (product.stock !== undefined) updateData.stock = product.stock;
+    if (product.is_best_seller !== undefined) updateData.is_best_seller = product.is_best_seller;
+    
+    const { data, error } = await supabase
+      .from('products')
+      .update(updateData)
+      .eq('id', id)
+      .select()
+      .single();
+
+    if (error) {
+      console.error('Supabase update error:', error);
+      throw new Error(error.message);
+    }
+    return data;
+  } catch (error: any) {
+    console.error('Error updating product:', error);
+    throw error;
+  }
+};
+
+/**
+ * @param {string} id - The product ID.
+ * @returns {Promise<void>} Promise that resolves when the product is deleted.
+ * @description Deletes a product from Supabase.
+ */
+export const deleteProductFromSupabase = async (id: string): Promise<void> => {
+  const { error } = await supabase
     .from('products')
-    .update(product)
-    .eq('id', id)
-    .select()
-    .single();
+    .delete()
+    .eq('id', id);
 
   if (error) {
     throw new Error(error.message);
   }
-  return data;
 };
 
 /**

@@ -3,6 +3,7 @@ import {
     fetchProductByIdFromSupabase,
     addProductToSupabase,
     updateProductInSupabase,
+    deleteProductFromSupabase,
   } from './supabase';
   import { Product } from '../types/product';
   
@@ -25,17 +26,29 @@ import {
   };
   
   /**
-   * @returns {Promise<{ clientSecret: string }>} The payment intent client secret.
-   * @description Creates a Stripe payment intent.
+   * @param {number} amount - The payment amount in dollars.
+   * @returns {Promise<{ clientSecret: string, paymentIntentId?: string }>} The payment intent details.
+   * @description Creates a Stripe payment intent with the specified amount.
    */
-  export const createPaymentIntent = async (): Promise<{ clientSecret: string }> => {
-    const response = await fetch('/api/payment', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ amount: 1000 }), // Example amount in cents
-    });
-    const data = await response.json();
-    return data;
+  export const createPaymentIntent = async (amount: number): Promise<{ clientSecret: string, paymentIntentId?: string }> => {
+    try {
+      const response = await fetch('/api/payment', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ amount }), // Amount in dollars (will be converted to cents in the API)
+      });
+      
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Payment intent creation failed');
+      }
+      
+      const data = await response.json();
+      return data;
+    } catch (error: any) {
+      console.error('Error creating payment intent:', error);
+      throw error;
+    }
   };
   
   /**
@@ -55,4 +68,13 @@ import {
    */
   export const updateProduct = async (id: string, product: Partial<Product>): Promise<Product> => {
     return await updateProductInSupabase(id, product);
+  };
+  
+  /**
+   * @param {string} id - The product ID.
+   * @returns {Promise<void>} Promise that resolves when the product is deleted.
+   * @description Deletes a product via Supabase.
+   */
+  export const deleteProduct = async (id: string): Promise<void> => {
+    return await deleteProductFromSupabase(id);
   };

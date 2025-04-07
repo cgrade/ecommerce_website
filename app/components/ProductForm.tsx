@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { Product } from "../types/product";
 import { addProduct, updateProduct } from "../lib/api";
 import { useRouter } from "next/navigation";
+import ImageUploader from "./ImageUploader";
 
 /**
  * @param {Product} [initialProduct] - The initial product data for editing (optional).
@@ -21,9 +22,7 @@ export default function ProductForm({
     initialProduct?.description || ""
   );
   const [image, setImage] = useState<string>(initialProduct?.image || "");
-  const [category, setCategory] = useState<string>(
-    initialProduct?.category || ""
-  );
+  const [stock, setStock] = useState<number>(initialProduct?.stock || 0);
   const [isBestSeller, setIsBestSeller] = useState<boolean>(
     initialProduct?.is_best_seller || false
   );
@@ -36,7 +35,7 @@ export default function ProductForm({
       price,
       description,
       image,
-      category,
+      stock,
       is_best_seller: isBestSeller,
     };
 
@@ -91,25 +90,29 @@ export default function ProductForm({
         />
       </div>
       <div className="mb-4">
-        <label className="block text-black font-semibold mb-2">Image URL</label>
-        <input
-          type="text"
-          value={image}
-          onChange={(e) => setImage(e.target.value)}
-          className="input input-bordered w-full bg-gray-100 text-black"
-          required
+        <label className="block text-black font-semibold mb-2">Product Image</label>
+        <ImageUploader 
+          onImageUploaded={(url) => setImage(url)}
+          initialImage={image}
         />
+        {image && (
+          <p className="mt-2 text-xs text-gray-500 truncate">
+            Current image: {image}
+          </p>
+        )}
       </div>
       <div className="mb-4">
-        <label className="block text-black font-semibold mb-2">Category</label>
+        <label className="block text-black font-semibold mb-2">Stock</label>
         <input
-          type="text"
-          value={category}
-          onChange={(e) => setCategory(e.target.value)}
+          type="number"
+          value={stock}
+          onChange={(e) => setStock(parseInt(e.target.value))}
           className="input input-bordered w-full bg-gray-100 text-black"
           required
+          min="0"
         />
       </div>
+
       <div className="mb-4">
         <label className="flex items-center cursor-pointer">
           <span className="text-black font-semibold mr-2">Best Seller</span>

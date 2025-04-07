@@ -1,9 +1,11 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { useSession, signOut } from "next-auth/react";
 import SearchBar from "./SearchBar";
 import { useState, useEffect } from "react";
+import { useCart } from "../hooks/useCart";
 import { 
   ShoppingCartIcon, 
   UserIcon, 
@@ -20,7 +22,10 @@ export default function Header() {
   // Don't destructure immediately to avoid errors
   const session = useSession();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [cartItemCount, setCartItemCount] = useState(0);
+  const { cart } = useCart();
+  
+  // Calculate cart item count from the cart state
+  const cartItemCount = cart.reduce((count, item) => count + item.quantity, 0);
   
   // Close mobile menu when clicking outside or on navigation links
   useEffect(() => {
@@ -34,12 +39,14 @@ export default function Header() {
   return (
     <header className="bg-white shadow-md fixed top-0 w-full z-10">
       <div className="container mx-auto px-6 py-5 flex justify-between items-center">
-        {/* Logo - Replace text with an actual logo image */}
-        <Link href="/" className="flex items-center space-x-2">
-          <div className="w-10 h-10 rounded-full bg-green-500 flex items-center justify-center">
-            <span className="text-white text-xl font-bold">E</span>
-          </div>
-          <span className="text-2xl font-extrabold text-green-600">Elegent</span>
+        {/* Logo */}
+        <Link href="/" className="flex items-center">
+          <img 
+            src="/images/logo.png" 
+            alt="Elegent Logo" 
+            className="h-24 w-auto object-contain filter drop-shadow-md hover:brightness-110 transition-all"
+            style={{ filter: 'drop-shadow(0 0 2px rgba(5, 10, 7, 0.3))' }}
+          />
         </Link>
 
         {/* Mobile menu button */}
@@ -63,12 +70,6 @@ export default function Header() {
           </Link>
           <Link href="/products" className="text-gray-700 hover:text-green-600 font-semibold px-2 py-1 rounded-md transition-colors hover:bg-green-50">
             PRODUCTS
-          </Link>
-          <Link
-            href="/categories"
-            className="text-gray-700 hover:text-green-600 font-semibold px-2 py-1 rounded-md transition-colors hover:bg-green-50"
-          >
-            CATEGORIES
           </Link>
           <Link href="/contact" className="text-gray-700 hover:text-green-600 font-semibold px-2 py-1 rounded-md transition-colors hover:bg-green-50">
             CONTACT
@@ -164,9 +165,9 @@ export default function Header() {
               </Link>
               <Link 
                 href="/signup" 
-                className="px-4 py-1.5 text-white font-medium bg-green-500 rounded-md hover:bg-green-600 transition-colors"
+                className="px-4 py-1.5 text-white font-small bg-green-500 rounded-md hover:bg-green-600 transition-colors"
               >
-                Sign Up
+                SignUp
               </Link>
             </div>
           )}
@@ -190,13 +191,6 @@ export default function Header() {
               onClick={() => setMobileMenuOpen(false)}
             >
               Products
-            </Link>
-            <Link 
-              href="/categories" 
-              className="block py-2 px-3 text-gray-600 font-medium hover:bg-gray-50 rounded-md"
-              onClick={() => setMobileMenuOpen(false)}
-            >
-              Categories
             </Link>
             <Link 
               href="/contact" 

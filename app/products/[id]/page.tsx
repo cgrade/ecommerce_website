@@ -13,9 +13,10 @@ type Props = {
   params: { id: string }
 };
 
-export default async function ProductDetailPage(props: Props) {
-  // Access id from params in a way that avoids the warning
-  const id = props.params.id;
+export default async function ProductDetailPage({ params }: Props) {
+  // In Next.js App Router, params is already resolved and doesn't need to be awaited
+  // But we need to ensure the id is a string before passing it to fetchProductById
+  const id = params?.id || '';
   const product = await fetchProductById(id);
 
   return (
