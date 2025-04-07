@@ -29,7 +29,7 @@ export default function RootLayout({
       <body>
         <NextAuthProvider>
           <Header />
-          <main>{children}</main>
+          <main className="pt-20">{children}</main>
           <Footer />
           <Toaster />
         </NextAuthProvider>

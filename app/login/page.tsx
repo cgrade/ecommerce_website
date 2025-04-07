@@ -28,9 +28,13 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="container mx-auto px-4 py-12">
-      <h1 className="text-3xl font-bold mb-8">Login</h1>
-      <form onSubmit={handleSubmit} className="max-w-md mx-auto">
+    <div className="container mx-auto px-4 py-16 mt-10">
+      <div className="text-center mb-10">
+        <h1 className="text-4xl font-extrabold text-gray-800 mb-2">Login</h1>
+        <p className="text-gray-600">Sign in to your account to continue shopping</p>
+      </div>
+      <div className="max-w-md mx-auto bg-white p-8 rounded-lg shadow-md">
+        <form onSubmit={handleSubmit} className="space-y-4">
         <input
           type="email"
           placeholder="Email"
@@ -45,10 +49,19 @@ export default function LoginPage() {
           onChange={(e) => setPassword(e.target.value)}
           className="input input-bordered w-full mb-4"
         />
-        <button type="submit" className="btn btn-primary w-full">
-          Login
-        </button>
-      </form>
+          <button type="submit" className="bg-green-500 hover:bg-green-600 text-white py-3 px-6 rounded-md w-full font-medium transition-colors">
+            Login
+          </button>
+        </form>
+        <div className="mt-6 text-center">
+          <p className="text-gray-600">
+            Don't have an account?{" "}
+            <a href="/signup" className="text-green-500 hover:underline font-medium">
+              Sign Up
+            </a>
+          </p>
+        </div>
+      </div>
     </div>
   );
 }

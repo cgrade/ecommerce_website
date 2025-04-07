@@ -1,6 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { Product } from "../types/product";
+import AddToCartButton from "./AddToCartButton";
 
 /**
  * @param {Product} product - The product data to display.
@@ -25,13 +26,14 @@ export default function ProductCard({ product }: { product: Product }) {
             Best Seller
           </span>
         )}
-        <div className="mt-4">
+        <div className="mt-4 space-y-3">
           <Link
             href={`/products/${product.id}`}
-            className="text-green-500 hover:underline"
+            className="text-green-500 hover:underline block mb-2"
           >
             View Details
           </Link>
+          <AddToCartButton productId={product.id} />
         </div>
       </div>
     </div>
