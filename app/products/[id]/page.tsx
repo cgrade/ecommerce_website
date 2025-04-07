@@ -1,17 +1,22 @@
 import Image from "next/image";
 import { fetchProductById } from "../../lib/api";
+import AddToCartButton from "../../components/AddToCartButton";
+import { Suspense } from "react";
 
 /**
  * @param {{ params: { id: string } }} props - The product ID from the URL.
  * @returns {Promise<JSX.Element>} The product detail page component.
  * @description Displays detailed information about a single product.
  */
-export default async function ProductDetailPage({
-  params,
-}: {
-  params: { id: string };
-}) {
-  const product = await fetchProductById(params.id);
+// This special type hints Next.js to treat this as a server component
+type Props = {
+  params: { id: string }
+};
+
+export default async function ProductDetailPage(props: Props) {
+  // Access id from params in a way that avoids the warning
+  const id = props.params.id;
+  const product = await fetchProductById(id);
 
   return (
     <div className="container mx-auto px-4 py-12">
@@ -26,8 +31,8 @@ export default async function ProductDetailPage({
         <div>
           <h1 className="text-3xl font-bold mb-4">{product.name}</h1>
           <p className="text-gray-600 mb-4">{product.description}</p>
-          <p className="text-2xl font-semibold mb-4">${product.price}</p>
-          {/* Add to Cart button can be added here */}
+          <p className="text-2xl font-semibold mb-4">${product.price.toFixed(2)}</p>
+          <AddToCartButton productId={product.id} />
         </div>
       </div>
     </div>

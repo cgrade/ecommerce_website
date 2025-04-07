@@ -117,17 +117,19 @@ export const fetchUserByCredentials = async (
  * @param {string} email - The user's email.
  * @param {string} password - The user's password.
  * @param {string} name - The user's name.
+ * @param {string} role - The user's role (default: 'user').
  * @returns {Promise<User>} The created user.
  * @description Registers a new user in Supabase.
  */
 export const createUserInSupabase = async (
   email: string,
   password: string,
-  name: string
+  name: string,
+  role: string = 'user'
 ): Promise<User> => {
   const { data, error } = await supabase
     .from('users')
-    .insert([{ email, password, name }]) // In production, hash the password
+    .insert([{ email, password, name, role }]) // In production, hash the password
     .select()
     .single();
 

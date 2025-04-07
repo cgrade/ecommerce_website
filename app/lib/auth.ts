@@ -2,6 +2,7 @@ import { createUserInSupabase, fetchUserByCredentials } from './supabase';
 import { User } from '../types/user';
 import type { NextAuthOptions } from 'next-auth';
 import CredentialsProvider from 'next-auth/providers/credentials';
+import { JWT } from 'next-auth/jwt';
 
 /**
  * @description Authentication options for NextAuth.js.
@@ -28,19 +29,22 @@ export const authOptions: NextAuthOptions = {
   ],
   pages: {
     signIn: '/login',
+    error: '/login',
   },
   callbacks: {
-    async session({ session, token }) {
-      if (token && session.user) {
-        session.user.role = token.role as string;
-      }
-      return session;
-    },
     async jwt({ token, user }) {
       if (user) {
-        token.role = user.role;
+        token.role = user.role || 'user';
+        token.id = user.id;
       }
       return token;
+    },
+    async session({ session, token }) {
+      if (token && session.user) {
+        (session.user as any).role = token.role;
+        (session.user as any).id = token.id;
+      }
+      return session;
     },
   },
 };
@@ -52,7 +56,17 @@ export const authOptions: NextAuthOptions = {
  * @description Authenticates a user with email and password.
  */
 export const authenticateUser = async (email: string, password: string): Promise<User | null> => {
-  return await fetchUserByCredentials(email, password);
+  try {
+    const user = await fetchUserByCredentials(email, password);
+    if (user) {
+      // Ensure role exists for auth processing
+      user.role = user.role || 'user';
+    }
+    return user;
+  } catch (error) {
+    console.error('Authentication error:', error);
+    return null;
+  }
 };
 
 /**
@@ -65,12 +79,23 @@ export const authenticateUser = async (email: string, password: string): Promise
 export const signUp = async (
   email: string,
   password: string,
-  name: string
-): Promise<{ success: boolean }> => {
+  name: string,
+  role: string = 'user'
+): Promise<{ success: boolean; error?: string }> => {
   try {
-    await createUserInSupabase(email, password, name);
+    await createUserInSupabase(email, password, name, role);
     return { success: true };
-  } catch (error) {
-    return { success: false };
+  } catch (error: any) {
+    console.error('Signup error:', error);
+    return { success: false, error: error.message || 'An error occurred during signup' };
   }
+};
+
+/**
+ * @param {User | any} user - The user object.
+ * @returns {boolean} Whether the user is an admin.
+ * @description Checks if a user has admin role.
+ */
+export const isAdmin = (user: any): boolean => {
+  return user?.role === 'admin';
 };
