@@ -10,7 +10,8 @@ import { ShoppingCartIcon, UserIcon } from "@heroicons/react/24/outline";
  * @description Renders the site header with navigation, search, and user options.
  */
 export default function Header() {
-  const { data: session } = useSession();
+  // Don't destructure immediately to avoid errors
+  const session = useSession();
 
   return (
     <header className="bg-white shadow-md fixed top-0 w-full z-10">
@@ -37,7 +38,7 @@ export default function Header() {
           <Link href="/contact" className="text-gray-600 hover:text-green-500">
             Contact
           </Link>
-          {session?.user?.role === "admin" && (
+          {session?.data?.user?.role === "admin" && (
             <Link
               href="/admin/dashboard"
               className="text-gray-600 hover:text-green-500"
@@ -59,7 +60,7 @@ export default function Header() {
               tabIndex={0}
               className="menu menu-compact dropdown-content mt-3 p-2 shadow bg-base-100 rounded-box w-52"
             >
-              {session ? (
+              {session?.status === "authenticated" ? (
                 <>
                   <li>
                     <Link href="/profile">Profile</Link>

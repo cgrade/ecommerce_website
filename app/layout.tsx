@@ -3,6 +3,7 @@ import { Toaster } from "react-hot-toast";
 import Header from "./components/Header";
 import Footer from "./components/Footer";
 import "./globals.css";
+import { NextAuthProvider } from "./providers";
 
 /**
  * @title Elegent E-Commerce Metadata
@@ -26,10 +27,12 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body>
-        <Header />
-        <main>{children}</main>
-        <Footer />
-        <Toaster />
+        <NextAuthProvider>
+          <Header />
+          <main>{children}</main>
+          <Footer />
+          <Toaster />
+        </NextAuthProvider>
       </body>
     </html>
   );

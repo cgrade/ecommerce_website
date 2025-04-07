@@ -1,5 +1,8 @@
 "use client";
 
+// Force dynamic rendering to prevent prerendering issues with useSession
+export const dynamic = "force-dynamic";
+
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -12,20 +15,35 @@ import Link from "next/link";
  * @description Displays a list of products for admin management.
  */
 export default function AdminDashboard() {
-  const { data: session, status } = useSession();
   const router = useRouter();
   const [products, setProducts] = useState<Product[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const session = useSession();
 
   useEffect(() => {
-    if (status === "unauthenticated" || session?.user?.role !== "admin") {
-      router.push("/login");
-    } else {
-      // Fetch products
-      fetchProductsFromSupabase().then((data) => setProducts(data));
+    // Only run on client side
+    if (typeof window !== "undefined") {
+      // Check session status and role safely
+      if (session.status === "unauthenticated") {
+        router.push("/login");
+      } else if (
+        session.status === "authenticated" &&
+        session.data?.user?.role === "admin"
+      ) {
+        // Fetch products only when authenticated as admin
+        setIsLoading(true);
+        fetchProductsFromSupabase()
+          .then((data) => setProducts(data))
+          .finally(() => setIsLoading(false));
+      } else if (session.status === "authenticated") {
+        // Authenticated but not admin
+        router.push("/");
+      }
     }
-  }, [status, session, router]);
+  }, [session.status, session.data, router]);
 
-  if (status === "loading") {
+  // Safe render during SSR and loading
+  if (typeof window === "undefined" || isLoading) {
     return <div className="text-center py-12 text-black">Loading...</div>;
   }
 

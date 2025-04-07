@@ -15,8 +15,11 @@ export const supabase = createClient(supabaseUrl, supabaseAnonKey);
 export const fetchProductsFromSupabase = async (params?: any): Promise<Product[]> => {
   let query = supabase.from('products').select('*');
 
-  if (params?.q) {
-    query = query.ilike('name', `%${params.q}%`);
+  // Ensure params is properly awaited if it's a promise
+  const resolvedParams = params instanceof Promise ? await params : params;
+
+  if (resolvedParams?.q) {
+    query = query.ilike('name', `%${resolvedParams.q}%`);
   }
 
   const { data, error } = await query;

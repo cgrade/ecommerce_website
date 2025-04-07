@@ -11,13 +11,13 @@ import Link from "next/link";
 export default function HeroSlider() {
   const slides = [
     {
-      image: "/images/slider1.jpg",
-      title: "MORE THAN A GAME. IT’S A LIFESTYLE.",
+      image: "/placeholder-slider1.jpg",
+      title: "MORE THAN A GAME. IT'S A LIFESTYLE.",
       subtitle:
-        "Whether you’re on the course or in the studio, we have what you need to play your best.",
+        "Whether you're on the course or in the studio, we have what you need to play your best.",
     },
     {
-      image: "/images/slider2.jpg",
+      image: "/placeholder-slider2.jpg",
       title: "ELEVATE YOUR PERFORMANCE",
       subtitle: "Discover the best sports gear for every athlete.",
     },
@@ -38,9 +38,9 @@ export default function HeroSlider() {
         <Image
           src={slides[currentSlide].image}
           alt={slides[currentSlide].title}
-          layout="fill"
-          objectFit="cover"
-          className="opacity-70"
+          fill
+          className="object-cover opacity-70"
+          priority
         />
       </div>
       <div className="container mx-auto px-4 flex flex-col md:flex-row items-center z-10">
