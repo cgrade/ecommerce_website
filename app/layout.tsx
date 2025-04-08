@@ -10,8 +10,8 @@ import { NextAuthProvider } from "./providers";
  * @description Defines metadata for SEO and site information.
  */
 export const metadata: Metadata = {
-  title: "Elegent - Sports & Lifestyle Products",
-  description: "Shop the best sports and lifestyle products at Elegent.",
+  title: "Elvix - clothings",
+  description: "Shop the best designer Clothings.",
 };
 
 /**
