@@ -2,6 +2,7 @@ import Image from "next/image";
 import { fetchProductById } from "../../lib/api";
 import AddToCartButton from "../../components/AddToCartButton";
 import { Suspense } from "react";
+import { formatPrice } from "../../utils/formatPrice";
 
 /**
  * @param {{ params: { id: string } }} props - The product ID from the URL.
@@ -32,7 +33,7 @@ export default async function ProductDetailPage({ params }: Props) {
         <div>
           <h1 className="text-3xl font-bold mb-4">{product.name}</h1>
           <p className="text-gray-600 mb-4">{product.description}</p>
-          <p className="text-2xl font-semibold mb-4">${product.price.toFixed(2)}</p>
+          <p className="text-2xl font-semibold mb-4">{formatPrice(product.price)}</p>
           <AddToCartButton productId={product.id} />
         </div>
       </div>

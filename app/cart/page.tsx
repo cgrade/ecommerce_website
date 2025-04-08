@@ -3,6 +3,7 @@
 import CartItem from "../components/CartItem";
 import { useCart } from "../hooks/useCart";
 import Link from "next/link";
+import { formatPrice } from "../utils/formatPrice";
 
 /**
  * @returns {JSX.Element} The cart page component.
@@ -58,7 +59,7 @@ export default function CartPage() {
               <div className="space-y-3 mb-4">
                 <div className="flex justify-between">
                   <span className="text-gray-600">Subtotal ({itemCount} items)</span>
-                  <span className="font-medium">${total.toFixed(2)}</span>
+                  <span className="font-medium">{formatPrice(total)}</span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-gray-600">Shipping</span>
@@ -69,7 +70,7 @@ export default function CartPage() {
               <div className="border-t border-gray-200 pt-4 mb-6">
                 <div className="flex justify-between items-center">
                   <span className="text-lg font-semibold">Total</span>
-                  <span className="text-xl font-bold text-green-600">${total.toFixed(2)}</span>
+                  <span className="text-xl font-bold text-green-600">{formatPrice(total)}</span>
                 </div>
               </div>
               

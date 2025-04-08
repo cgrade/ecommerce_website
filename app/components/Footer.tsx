@@ -1,4 +1,4 @@
-import { FaFacebook, FaTwitter, FaInstagram } from "react-icons/fa";
+import { FaInstagram, FaTiktok } from "react-icons/fa6";
 
 /**
  * @returns {JSX.Element} The footer component.
@@ -36,14 +36,11 @@ export default function Footer() {
           <div>
             <h3 className="text-lg font-bold mb-4">Follow Us</h3>
             <div className="flex space-x-4">
-              <a>
-                <FaFacebook className="h-6 w-6" />
-              </a>
-              <a>
-                <FaTwitter className="h-6 w-6" />
-              </a>
-              <a>
+              <a href="https://www.instagram.com/elvix.sn" target="_blank" rel="noopener noreferrer">
                 <FaInstagram className="h-6 w-6" />
+              </a>
+              <a href="https://www.tiktok.com/@elvix.sn" target="_blank" rel="noopener noreferrer">
+                <FaTiktok className="h-6 w-6" />
               </a>
             </div>
           </div>

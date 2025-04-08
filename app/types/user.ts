@@ -4,4 +4,6 @@ export interface User {
     name: string;
     role: string; // Required role field ('admin' or 'user')
     created_at?: string;
+    email_verified?: boolean;
+    verification_token?: string | null;
   }

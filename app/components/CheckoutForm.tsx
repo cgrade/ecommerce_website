@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import { createPaymentIntent } from "../lib/api";
 import { useCart } from "../hooks/useCart";
 import Link from "next/link";
+import { formatPrice } from "../utils/formatPrice";
 
 const CARD_ELEMENT_OPTIONS = {
   style: {
@@ -184,14 +185,14 @@ export default function CheckoutForm() {
                     <p className="text-sm font-medium">{item.name} <span className="text-gray-500">x {item.quantity}</span></p>
                   </div>
                 </div>
-                <p className="text-sm font-medium">${(item.price * item.quantity).toFixed(2)}</p>
+                <p className="text-sm font-medium">{formatPrice(item.price * item.quantity)}</p>
               </div>
             ))}
           </div>
           <div className="border-t border-gray-200 pt-4 mt-4">
             <div className="flex justify-between items-center">
               <span className="font-semibold">Total</span>
-              <span className="font-bold text-green-600">${total.toFixed(2)}</span>
+              <span className="font-bold text-green-600">{formatPrice(total)}</span>
             </div>
           </div>
         </div>
@@ -253,7 +254,7 @@ export default function CheckoutForm() {
                 Processing Payment...
               </>
             ) : (
-              `Pay $${total.toFixed(2)}`
+              `Pay ${formatPrice(total)}`
             )}
           </button>
           

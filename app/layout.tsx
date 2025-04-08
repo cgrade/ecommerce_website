@@ -26,7 +26,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body>
+      <body suppressHydrationWarning={true}>
         <NextAuthProvider>
           <Header />
           <main className="pt-28">{children}</main>

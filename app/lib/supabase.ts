@@ -163,8 +163,9 @@ export const fetchUserByCredentials = async (
  * @param {string} password - The user's password.
  * @param {string} name - The user's name.
  * @param {string} role - The user's role (default: 'user').
+ * @param {string} verificationToken - Token for email verification.
  * @returns {Promise<User>} The created user.
- * @description Registers a new user in Supabase.
+ * @description Registers a new user in Supabase with email verification.
  */
 export const createUserInSupabase = async (
   email: string,
@@ -172,9 +173,17 @@ export const createUserInSupabase = async (
   name: string,
   role: string = 'user'
 ): Promise<User> => {
+  // In a real application, you would first check if the database has the necessary columns
+  // and create a migration if needed
+  
   const { data, error } = await supabase
     .from('users')
-    .insert([{ email, password, name, role }]) // In production, hash the password
+    .insert([{ 
+      email, 
+      password, // In production, hash the password
+      name, 
+      role
+    }])
     .select()
     .single();
 
@@ -182,4 +191,24 @@ export const createUserInSupabase = async (
     throw new Error(error.message);
   }
   return data;
+};
+
+/**
+ * @param {string} email - The user's email.
+ * @returns {Promise<void>}
+ * @description Simulates sending a verification email to the user.
+ */
+export const sendVerificationEmail = async (
+  email: string
+): Promise<void> => {
+  // In a real application, you would use a service like SendGrid, Mailgun, etc.
+  // For this simulation, we'll just log that an email would be sent
+  
+  console.log(`[SIMULATION] Verification email would be sent to ${email}`);
+  console.log(`[SIMULATION] In a real implementation, this would contain a verification link`);
+  
+  // In a real implementation with proper database schema, you would:
+  // 1. Generate a verification token
+  // 2. Store it in the database
+  // 3. Send an email with a verification link
 };

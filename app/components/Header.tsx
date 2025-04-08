@@ -37,15 +37,15 @@ export default function Header() {
   }, [mobileMenuOpen]);
 
   return (
-    <header className="bg-white shadow-md fixed top-0 w-full z-10">
-      <div className="container mx-auto px-6 py-5 flex justify-between items-center">
+    <header className="bg-white bg-opacity-95 backdrop-blur-sm shadow-md fixed top-0 w-full z-50">
+      <div className="container mx-auto px-6 py-5 flex justify-between items-center backdrop-filter">
         {/* Logo */}
         <Link href="/" className="flex items-center">
           <img 
             src="/images/logo.png" 
             alt="Elegent Logo" 
-            className="h-24 w-auto object-contain filter drop-shadow-md hover:brightness-110 transition-all"
-            style={{ filter: 'drop-shadow(0 0 2px rgba(5, 10, 7, 0.3))' }}
+            className="h-16 w-auto object-contain transition-all"
+            style={{ filter: 'brightness(0) saturate(100%)', WebkitFilter: 'brightness(0) saturate(100%)' }}
           />
         </Link>
 

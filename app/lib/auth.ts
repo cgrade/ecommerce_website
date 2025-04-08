@@ -1,4 +1,4 @@
-import { createUserInSupabase, fetchUserByCredentials } from './supabase';
+import { createUserInSupabase, fetchUserByCredentials, sendVerificationEmail } from './supabase';
 import { User } from '../types/user';
 import type { NextAuthOptions } from 'next-auth';
 import CredentialsProvider from 'next-auth/providers/credentials';
@@ -61,6 +61,9 @@ export const authenticateUser = async (email: string, password: string): Promise
     if (user) {
       // Ensure role exists for auth processing
       user.role = user.role || 'user';
+      
+      // In a real implementation with proper database schema, we would check email verification here
+      // For now, we'll skip this check since the column doesn't exist
     }
     return user;
   } catch (error) {
@@ -83,7 +86,12 @@ export const signUp = async (
   role: string = 'user'
 ): Promise<{ success: boolean; error?: string }> => {
   try {
+    // Create user with basic information
     await createUserInSupabase(email, password, name, role);
+    
+    // Simulate sending verification email
+    await sendVerificationEmail(email);
+    
     return { success: true };
   } catch (error: any) {
     console.error('Signup error:', error);

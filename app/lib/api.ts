@@ -26,27 +26,55 @@ import {
   };
   
   /**
-   * @param {number} amount - The payment amount in dollars.
-   * @returns {Promise<{ clientSecret: string, paymentIntentId?: string }>} The payment intent details.
-   * @description Creates a Stripe payment intent with the specified amount.
+   * @param {number} amount - The payment amount in Naira.
+   * @param {Object} customer - Customer information.
+   * @returns {Promise<{ success: boolean, txRef: string, amount: number }>} The payment initialization details.
+   * @description Initializes a Flutterwave payment with the specified amount.
    */
-  export const createPaymentIntent = async (amount: number): Promise<{ clientSecret: string, paymentIntentId?: string }> => {
+  export const initializePayment = async (amount: number, customer?: { email?: string, name?: string, phone?: string }): Promise<{ success: boolean, txRef: string, amount: number }> => {
     try {
       const response = await fetch('/api/payment', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ amount }), // Amount in dollars (will be converted to cents in the API)
+        body: JSON.stringify({ amount, customer }), // Amount in Naira
       });
       
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(errorData.error || 'Payment intent creation failed');
+        throw new Error(errorData.error || 'Payment initialization failed');
       }
       
       const data = await response.json();
       return data;
     } catch (error: any) {
-      console.error('Error creating payment intent:', error);
+      console.error('Error initializing payment:', error);
+      throw error;
+    }
+  };
+  
+  /**
+   * @param {string} transactionId - The Flutterwave transaction ID.
+   * @param {string} txRef - The transaction reference.
+   * @returns {Promise<{ status: string, message: string, data?: any }>} The verification result.
+   * @description Verifies a Flutterwave payment transaction.
+   */
+  export const verifyPayment = async (transactionId: string, txRef: string): Promise<{ status: string, message: string, data?: any }> => {
+    try {
+      const response = await fetch('/api/payment/verify', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ transaction_id: transactionId, tx_ref: txRef }),
+      });
+      
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Payment verification failed');
+      }
+      
+      const data = await response.json();
+      return data;
+    } catch (error: any) {
+      console.error('Error verifying payment:', error);
       throw error;
     }
   };

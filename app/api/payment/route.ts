@@ -1,40 +1,30 @@
 import { NextResponse } from 'next/server';
-import Stripe from 'stripe';
-
-// Initialize Stripe with a fallback test key (for development only)
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || 'sk_test_51OzBzNGqPXjUkLCPQDNyWNfPBGvUZQKjBVnbUGdKXKJUwQPkXDTlIeYHcMxJIVvMpyXRrfKdKCnDEiKlNcIGIXRD00Ht9Wy3Qd');
 
 /**
  * @param {Request} request - The incoming request.
- * @returns {Promise<NextResponse>} The response with payment intent.
- * @description Handles POST requests to create a payment intent.
+ * @returns {Promise<NextResponse>} The response with payment reference.
+ * @description Handles POST requests to initialize a Flutterwave payment.
  */
 export async function POST(request: Request) {
   try {
-    // Get cart total from request or use a default amount for demo
-    const { amount = 1000 } = await request.json();
+    // Get payment details from request
+    const { amount = 1000, customer } = await request.json();
     
-    // Create a PaymentIntent with the order amount and currency
-    const paymentIntent = await stripe.paymentIntents.create({
-      amount: Math.round(amount * 100), // Convert to cents
-      currency: 'usd',
-      // In a real app, you'd include metadata about the order
-      metadata: {
-        integration_check: 'accept_a_payment',
-      },
-      automatic_payment_methods: {
-        enabled: true,
-      },
-    });
-
+    // Generate a unique transaction reference
+    const txRef = `tx_${Date.now()}_${Math.floor(Math.random() * 1000000)}`;
+    
+    // In a real app, you'd store this transaction reference with the order details
+    // For example, update an order in the database with the txRef
+    
     return NextResponse.json({ 
-      clientSecret: paymentIntent.client_secret,
-      paymentIntentId: paymentIntent.id
+      success: true,
+      txRef: txRef,
+      amount: amount
     });
   } catch (error: any) {
-    console.error('Payment intent error:', error);
+    console.error('Payment initialization error:', error);
     return NextResponse.json({ 
-      error: error.message || 'Failed to create payment intent' 
+      error: error.message || 'Failed to initialize payment' 
     }, { status: 500 });
   }
 }

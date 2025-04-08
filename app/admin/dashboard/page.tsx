@@ -12,6 +12,7 @@ import { Product } from "../../types/product";
 import Link from "next/link";
 import Image from "next/image";
 import { toast } from "react-hot-toast";
+import { formatPrice } from "../../utils/formatPrice";
 
 /**
  * @returns {JSX.Element} The admin dashboard component.
@@ -92,16 +93,27 @@ export default function AdminDashboard() {
   return (
     <div className="container mx-auto px-4 py-12 bg-white">
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8">
-        <h1 className="text-3xl font-bold text-gray-800">Product Management</h1>
-        <Link
-          href="/admin/products/add"
-          className="bg-green-500 text-white px-6 py-3 rounded-lg hover:bg-green-600 transition-colors mt-4 md:mt-0 inline-flex items-center"
-        >
+        <h1 className="text-3xl font-bold text-gray-800">Admin Dashboard</h1>
+        <div className="flex flex-col sm:flex-row gap-3 mt-4 md:mt-0">
+          <Link
+            href="/admin/users"
+            className="bg-purple-500 text-white px-6 py-3 rounded-lg hover:bg-purple-600 transition-colors inline-flex items-center"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
+              <path d="M9 6a3 3 0 11-6 0 3 3 0 016 0zM17 6a3 3 0 11-6 0 3 3 0 016 0zM12.93 17c.046-.327.07-.66.07-1a6.97 6.97 0 00-1.5-4.33A5 5 0 0119 16v1h-6.07zM6 11a5 5 0 015 5v1H1v-1a5 5 0 015-5z" />
+            </svg>
+            Manage Users
+          </Link>
+          <Link
+            href="/admin/products/add"
+            className="bg-green-500 text-white px-6 py-3 rounded-lg hover:bg-green-600 transition-colors inline-flex items-center"
+          >
           <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
             <path fillRule="evenodd" d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z" clipRule="evenodd" />
           </svg>
           Add New Product
         </Link>
+        </div>
       </div>
       
       <div className="bg-white rounded-lg shadow-md p-6 mb-8">
@@ -161,7 +173,7 @@ export default function AdminDashboard() {
                     </div>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="text-sm text-gray-900">${product.price.toFixed(2)}</div>
+                    <div className="text-sm text-gray-900">{formatPrice(product.price)}</div>
                   </td>
 
                   <td className="px-6 py-4 whitespace-nowrap">

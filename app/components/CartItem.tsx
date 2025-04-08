@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { CartItem as CartItemType } from "../types/cart";
+import { formatPrice } from "../utils/formatPrice";
 
 /**
  * @param {CartItemType} item - The cart item data.
@@ -59,8 +60,8 @@ export default function CartItem({
         </div>
         <div className="ml-4 flex-1">
           <h3 className="text-lg font-medium text-gray-800">{item.name}</h3>
-          <p className="mt-1 text-sm text-gray-600">Unit Price: ${item.price.toFixed(2)}</p>
-          <p className="mt-1 text-sm font-semibold text-green-600">Subtotal: ${(item.price * item.quantity).toFixed(2)}</p>
+          <p className="mt-1 text-sm text-gray-600">Unit Price: {formatPrice(item.price)}</p>
+          <p className="mt-1 text-sm font-semibold text-green-600">Subtotal: {formatPrice(item.price * item.quantity)}</p>
         </div>
       </div>
       
