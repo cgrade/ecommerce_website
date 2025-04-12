@@ -2,10 +2,29 @@ import { createClient } from '@supabase/supabase-js';
 import { Product } from '../types/product';
 import { User } from '../types/user';
 
-// Initialize Supabase client
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
-const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
-export const supabase = createClient(supabaseUrl, supabaseAnonKey);
+// Initialize Supabase client - with proper error handling for build time
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+
+// Create a function that initializes the client when called
+// This prevents build-time errors when environment variables might be undefined
+const getSupabaseClient = () => {
+  if (!supabaseUrl) throw new Error('supabaseUrl is required');
+  if (!supabaseAnonKey) throw new Error('supabaseAnonKey is required');
+  return createClient(supabaseUrl, supabaseAnonKey);
+};
+
+// Client-side only initialization
+let supabaseClient: ReturnType<typeof createClient> | null = null;
+
+// Gets the client or initializes it if it doesn't exist
+export const supabase = (() => {
+  // Only initialize in browser environment
+  if (typeof window !== 'undefined' && !supabaseClient) {
+    supabaseClient = getSupabaseClient();
+  }
+  return supabaseClient || getSupabaseClient();
+})();
 
 /**
  * @param {any} [params] - Optional query parameters for filtering.
