@@ -19,11 +19,17 @@ let supabaseClient: ReturnType<typeof createClient> | null = null;
 
 // Gets the client or initializes it if it doesn't exist
 export const supabase = (() => {
-  // Only initialize in browser environment
-  if (typeof window !== 'undefined' && !supabaseClient) {
-    supabaseClient = getSupabaseClient();
+  try {
+    // Only initialize in browser environment
+    if (typeof window !== 'undefined' && !supabaseClient) {
+      console.log('Initializing Supabase client with URL:', supabaseUrl?.substring(0, 15) + '...');
+      supabaseClient = getSupabaseClient();
+    }
+    return supabaseClient || getSupabaseClient();
+  } catch (error) {
+    console.error('Failed to initialize Supabase client:', error);
+    throw error;
   }
-  return supabaseClient || getSupabaseClient();
 })();
 
 /**

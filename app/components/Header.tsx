@@ -21,20 +21,10 @@ import {
 export default function Header() {
   // Don't destructure immediately to avoid errors
   const session = useSession();
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const { cart } = useCart();
   
   // Calculate cart item count from the cart state
   const cartItemCount = cart.reduce((count, item) => count + item.quantity, 0);
-  
-  // Close mobile menu when clicking outside or on navigation links
-  useEffect(() => {
-    const handleOutsideClick = () => setMobileMenuOpen(false);
-    if (mobileMenuOpen) {
-      document.addEventListener('click', handleOutsideClick);
-    }
-    return () => document.removeEventListener('click', handleOutsideClick);
-  }, [mobileMenuOpen]);
 
   return (
     <header className="bg-white bg-opacity-95 backdrop-blur-sm shadow-md fixed top-0 w-full z-50">
@@ -44,24 +34,38 @@ export default function Header() {
           <img 
             src="/images/logo.png" 
             alt="Elegent Logo" 
-            className="h-16 w-auto object-contain transition-all"
+            className="md:h-16 h-8 w-auto object-contain transition-all"
             style={{ filter: 'brightness(0) saturate(100%)', WebkitFilter: 'brightness(0) saturate(100%)' }}
           />
         </Link>
 
-        {/* Mobile menu button */}
-        <button 
-          className="md:hidden p-2 rounded-md text-gray-600 hover:bg-gray-100 focus:outline-none"
-          onClick={(e) => {
-            e.stopPropagation();
-            setMobileMenuOpen(!mobileMenuOpen);
-          }}
-        >
-          {mobileMenuOpen ? 
-            <XMarkIcon className="h-6 w-6" /> : 
-            <Bars3Icon className="h-6 w-6" />
-          }
-        </button>
+        {/* Mobile Icons */}
+        <div className="md:hidden flex items-center space-x-4">
+          {/* Search Icon for Mobile - Links to Products */}
+          <Link 
+            href="/products"
+            className="p-2 rounded-md text-gray-600 hover:bg-gray-100 focus:outline-none"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+            </svg>
+          </Link>
+          
+          {/* User Icon for Mobile */}
+          <Link href={session?.status === "authenticated" ? "/profile" : "/login"} className="p-2 rounded-md text-gray-600 hover:bg-gray-100">
+            <UserIcon className="h-5 w-5" />
+          </Link>
+          
+          {/* Cart Icon with badge for Mobile */}
+          <Link href="/cart" className="p-2 rounded-md text-gray-600 hover:bg-gray-100 relative">
+            <ShoppingBagIcon className="h-5 w-5" />
+            {cartItemCount > 0 && (
+              <span className="absolute -top-1 -right-1 bg-green-500 text-white text-xs font-bold rounded-full h-4 w-4 flex items-center justify-center">
+                {cartItemCount}
+              </span>
+            )}
+          </Link>
+        </div>
 
         {/* Desktop Navigation */}
         <nav className="hidden md:flex space-x-8">
@@ -174,115 +178,7 @@ export default function Header() {
         </div>
       </div>
       
-      {/* Mobile Menu */}
-      {mobileMenuOpen && (
-        <div className="md:hidden bg-white border-t">
-          <div className="px-4 py-3 space-y-3">
-            <Link 
-              href="/" 
-              className="block py-2 px-3 text-gray-600 font-medium hover:bg-gray-50 rounded-md"
-              onClick={() => setMobileMenuOpen(false)}
-            >
-              Home
-            </Link>
-            <Link 
-              href="/products" 
-              className="block py-2 px-3 text-gray-600 font-medium hover:bg-gray-50 rounded-md"
-              onClick={() => setMobileMenuOpen(false)}
-            >
-              Products
-            </Link>
-            <Link 
-              href="/contact" 
-              className="block py-2 px-3 text-gray-600 font-medium hover:bg-gray-50 rounded-md"
-              onClick={() => setMobileMenuOpen(false)}
-            >
-              Contact
-            </Link>
-            {session?.data?.user?.role === "admin" && (
-              <Link 
-                href="/admin/dashboard" 
-                className="block py-2 px-3 text-gray-600 font-medium hover:bg-gray-50 rounded-md"
-                onClick={() => setMobileMenuOpen(false)}
-              >
-                Admin Dashboard
-              </Link>
-            )}
-          </div>
-          
-          {/* Mobile Search */}
-          <div className="px-4 py-2">
-            <SearchBar />
-          </div>
-          
-          {/* Mobile Auth Links */}
-          <div className="border-t border-gray-200 pt-4 pb-3">
-            {session?.status === "authenticated" ? (
-              <div className="px-4 space-y-3">
-                <div className="flex items-center px-3">
-                  <div className="avatar placeholder mr-3">
-                    <div className="bg-green-100 text-green-600 rounded-full w-10">
-                      <span>{session.data.user.name?.charAt(0) || "U"}</span>
-                    </div>
-                  </div>
-                  <div>
-                    <div className="text-base font-medium text-gray-800">
-                      {session.data.user.name}
-                    </div>
-                    <div className="text-sm text-gray-500">
-                      {session.data.user.email}
-                    </div>
-                  </div>
-                </div>
-                <Link 
-                  href="/profile" 
-                  className="block py-2 px-3 text-gray-600 hover:bg-gray-50 rounded-md"
-                  onClick={() => setMobileMenuOpen(false)}
-                >
-                  Profile
-                </Link>
-                <Link 
-                  href="/cart" 
-                  className="block py-2 px-3 text-gray-600 hover:bg-gray-50 rounded-md"
-                  onClick={() => setMobileMenuOpen(false)}
-                >
-                  Cart {cartItemCount > 0 && `(${cartItemCount})`}
-                </Link>
-                <button 
-                  onClick={() => signOut()} 
-                  className="w-full text-left py-2 px-3 text-gray-600 hover:bg-gray-50 rounded-md"
-                >
-                  Logout
-                </button>
-              </div>
-            ) : (
-              <div className="px-4 space-y-3">
-                <Link 
-                  href="/login" 
-                  className="block py-2 px-3 text-gray-600 hover:bg-gray-50 rounded-md"
-                  onClick={() => setMobileMenuOpen(false)}
-                >
-                  Login
-                </Link>
-                <Link 
-                  href="/signup" 
-                  className="block py-2 px-3 text-gray-600 hover:bg-gray-50 rounded-md"
-                  onClick={() => setMobileMenuOpen(false)}
-                >
-                  Sign Up
-                </Link>
-                <Link 
-                  href="/cart" 
-                  className="block py-2 px-3 text-gray-600 hover:bg-gray-50 rounded-md"
-                  onClick={() => setMobileMenuOpen(false)}
-                >
-                  Cart {cartItemCount > 0 && `(${cartItemCount})`}
-                </Link>
-              </div>
-            )}
-          </div>
-        </div>
-      )}
+      {/* No longer using mobile dropdown menu */}
     </header>
   );
 }

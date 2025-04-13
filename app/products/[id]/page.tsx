@@ -15,9 +15,9 @@ type Props = {
 };
 
 export default async function ProductDetailPage({ params }: Props) {
-  // In Next.js App Router, params is already resolved and doesn't need to be awaited
-  // But we need to ensure the id is a string before passing it to fetchProductById
-  const id = params?.id || '';
+  // Make sure we have a string ID - TypeScript already ensures this from the Props type
+  // but we add an extra safeguard
+  const id = String(params.id);
   const product = await fetchProductById(id);
 
   return (

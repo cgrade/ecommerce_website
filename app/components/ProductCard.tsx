@@ -12,13 +12,15 @@ import { formatPrice } from "../utils/formatPrice";
 export default function ProductCard({ product }: { product: Product }) {
   return (
     <div className="bg-white shadow-md rounded-lg overflow-hidden">
-      <Image
-        src={product.image}
-        alt={product.name}
-        width={300}
-        height={150}
-        className="w-full h-36 object-cover"
-      />
+      <Link href={`/products/${product.id}`} className="cursor-pointer block">
+        <Image
+          src={product.image}
+          alt={product.name}
+          width={300}
+          height={150}
+          className="w-full h-36 object-cover hover:opacity-90 transition-opacity"
+        />
+      </Link>
       <div className="p-3">
         <h3 className="text-sm font-semibold text-black line-clamp-1">{product.name}</h3>
         <p className="text-gray-600 text-sm">{formatPrice(product.price)}</p>
