@@ -2,6 +2,7 @@
 
 import React from 'react';
 import { FaWhatsapp } from 'react-icons/fa';
+import Link from 'next/link';
 
 interface WhatsAppButtonProps {
   phoneNumber: string;
@@ -16,25 +17,22 @@ const WhatsAppButton: React.FC<WhatsAppButtonProps> = ({
   phoneNumber, 
   message = 'Hello! I have a question about your products.'
 }) => {
-  const handleClick = () => {
-    // Format phone number (remove any non-digit characters)
-    const formattedPhone = phoneNumber.replace(/\D/g, '');
-    
-    // Create WhatsApp URL with phone and pre-filled message
-    const whatsappUrl = `https://wa.me/${formattedPhone}?text=${encodeURIComponent(message)}`;
-    
-    // Open in new tab
-    window.open(whatsappUrl, '_blank');
-  };
+  // Format phone number (remove any non-digit characters)
+  const formattedPhone = phoneNumber.replace(/\D/g, '');
+  
+  // Create WhatsApp URL with phone and pre-filled message
+  const whatsappUrl = `https://wa.me/${formattedPhone}?text=${encodeURIComponent(message)}`;
 
   return (
-    <button
-      onClick={handleClick}
+    <Link
+      href={whatsappUrl}
+      target="_blank"
+      rel="noopener noreferrer"
       className="fixed bottom-6 right-6 bg-green-500 hover:bg-green-600 text-white rounded-full p-3 shadow-lg z-50 transition-transform duration-300 hover:scale-110"
       aria-label="Chat with us on WhatsApp"
     >
       <FaWhatsapp size={28} />
-    </button>
+    </Link>
   );
 };
 

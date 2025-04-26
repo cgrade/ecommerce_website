@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, Fragment } from 'react';
+import { useState, useEffect, Fragment, useCallback } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { Dialog, Transition } from '@headlessui/react';
@@ -20,6 +20,15 @@ export default function ProductModal({ isOpen, onClose, product }: ProductModalP
   const [selectedSize, setSelectedSize] = useState<string>("");
   const [quantity, setQuantity] = useState<number>(1);
   const [sizeError, setSizeError] = useState<boolean>(false);
+  const [origin, setOrigin] = useState<string>("");
+  
+  // Set the origin for share URLs only on the client side
+  useEffect(() => {
+    // Only access window in the browser
+    if (typeof window !== 'undefined') {
+      setOrigin(window.location.origin);
+    }
+  }, []);
   const images = product.image_urls && product.image_urls.length > 0 
     ? product.image_urls 
     : [product.image || "/images/placeholder.png"];
@@ -125,26 +134,40 @@ export default function ProductModal({ isOpen, onClose, product }: ProductModalP
                     {/* Size Selection */}
                     {product.sizes && product.sizes.length > 0 && (
                       <div className="mb-6">
-                        <label className="block text-base font-semibold mb-2 text-gray-800">
-                          Size
-                        </label>
-                        <select 
-                          className={`w-full border ${sizeError ? 'border-red-500' : 'border-gray-300'} rounded-md py-2 px-3 bg-white text-gray-800`}
-                          value={selectedSize}
-                          onChange={(e) => {
-                            setSelectedSize(e.target.value);
-                            setSizeError(false);
-                          }}
-                        >
-                          <option value="">Select size</option>
+                        <div className="flex items-center justify-between">
+                          <label className="block text-base font-semibold mb-2 text-gray-800">
+                            Size
+                          </label>
+                          <Link 
+                            href="/size-guide"
+                            target="_blank"
+                            className="text-sm text-gray-500 hover:text-gray-800 underline mb-2"
+                          >
+                            Size Guide
+                          </Link>
+                        </div>
+                        
+                        <div className="flex flex-wrap gap-2 mt-1">
                           {product.sizes.map((size) => (
-                            <option key={size} value={size}>
+                            <button
+                              key={size}
+                              className={`inline-block bg-white border ${
+                                selectedSize === size 
+                                  ? 'border-gray-800 bg-gray-100' 
+                                  : 'border-gray-300 hover:border-gray-400'
+                              } text-gray-800 w-10 h-10 sm:w-12 sm:h-12 rounded-md text-sm font-medium transition-all transform hover:scale-105 active:scale-95`}
+                              onClick={() => {
+                                setSelectedSize(size);
+                                setSizeError(false);
+                              }}
+                            >
                               {size}
-                            </option>
+                            </button>
                           ))}
-                        </select>
+                        </div>
+                        
                         {sizeError && (
-                          <p className="mt-1 text-sm text-red-500">Please select a size</p>
+                          <p className="mt-2 text-sm text-red-500 font-medium">Please select a size</p>
                         )}
                       </div>
                     )}
@@ -155,27 +178,41 @@ export default function ProductModal({ isOpen, onClose, product }: ProductModalP
                         Quantity
                       </label>
                       <div className="flex items-center">
-                        <button 
-                          className="w-10 h-10 border border-gray-300 flex items-center justify-center text-gray-600 hover:bg-gray-100"
-                          onClick={() => setQuantity(prev => Math.max(1, prev - 1))}
-                          aria-label="Decrease quantity"
-                        >
-                          <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 12H4" />
-                          </svg>
-                        </button>
-                        <div className="w-12 h-10 border-t border-b border-gray-300 flex items-center justify-center text-gray-800">
-                          {quantity}
+                        <div className="flex items-center border border-gray-300 rounded-md bg-white overflow-hidden">
+                          <button 
+                            className="w-10 h-10 sm:w-12 sm:h-12 flex items-center justify-center text-gray-500 hover:text-gray-800 hover:bg-gray-100 border-r border-gray-300 transition-colors"
+                            onClick={() => setQuantity(prev => Math.max(1, prev - 1))}
+                            aria-label="Decrease quantity"
+                          >
+                            <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 12H4" />
+                            </svg>
+                          </button>
+                          <span className="w-12 h-10 sm:w-14 sm:h-12 flex items-center justify-center text-gray-800 font-medium">{quantity}</span>
+                          <button 
+                            className="w-10 h-10 sm:w-12 sm:h-12 flex items-center justify-center text-gray-500 hover:text-gray-800 hover:bg-gray-100 border-l border-gray-300 transition-colors"
+                            onClick={() => setQuantity(prev => prev + 1)}
+                            aria-label="Increase quantity"
+                          >
+                            <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                            </svg>
+                          </button>
                         </div>
-                        <button 
-                          className="w-10 h-10 border border-gray-300 flex items-center justify-center text-gray-600 hover:bg-gray-100"
-                          onClick={() => setQuantity(prev => prev + 1)}
-                          aria-label="Increase quantity"
-                        >
-                          <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-                          </svg>
-                        </button>
+                        
+                        <div className="ml-4 text-sm text-gray-500">
+                          {product.in_stock ? (
+                            <span className="flex items-center">
+                              <span className="w-2 h-2 bg-green-500 rounded-full mr-2"></span>
+                              In Stock
+                            </span>
+                          ) : (
+                            <span className="flex items-center">
+                              <span className="w-2 h-2 bg-red-500 rounded-full mr-2"></span>
+                              Out of Stock
+                            </span>
+                          )}
+                        </div>
                       </div>
                     </div>
                     
@@ -186,7 +223,7 @@ export default function ProductModal({ isOpen, onClose, product }: ProductModalP
                         <div className="flex space-x-4">
                           {/* Instagram */}
                           <a 
-                            href={`https://www.instagram.com/create/link/?url=${encodeURIComponent(`${window.location.origin}/products/${product.id}`)}&title=${encodeURIComponent(product.name)}`}
+                            href={`https://www.instagram.com/create/link/?url=${encodeURIComponent(`${origin}/products/${product.id}`)}&title=${encodeURIComponent(product.name)}`}
                             target="_blank" 
                             rel="noopener noreferrer"
                             className="text-gray-600 hover:text-[#C13584] transition-colors"
@@ -199,7 +236,7 @@ export default function ProductModal({ isOpen, onClose, product }: ProductModalP
                           
                           {/* TikTok */}
                           <a 
-                            href={`https://www.tiktok.com/share?text=${encodeURIComponent(product.name)}&url=${encodeURIComponent(`${window.location.origin}/products/${product.id}`)}`}
+                            href={`https://www.tiktok.com/share?text=${encodeURIComponent(product.name)}&url=${encodeURIComponent(`${origin}/products/${product.id}`)}`}
                             target="_blank" 
                             rel="noopener noreferrer"
                             className="text-gray-600 hover:text-black transition-colors"

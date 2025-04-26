@@ -9,4 +9,8 @@ export interface Product {
   is_best_seller: boolean;
   sizes: string[];
   created_at?: string;
+  in_stock?: boolean; // Whether the product is in stock
+  category?: string; // Product category
+  selectedSize?: string | null; // Selected size for cart items
+  quantity?: number; // Quantity for cart items
 }

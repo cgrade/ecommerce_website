@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import { Product } from "../types/product";
 import CustomAddToCart from "./CustomAddToCart";
 
@@ -18,8 +19,17 @@ export default function ProductDetailActions({ product }: ProductDetailActionsPr
       {/* Sizes */}
       {product.sizes && product.sizes.length > 0 && (
         <div className="mb-6">
-          <h3 className="text-base font-semibold mb-3 text-gray-800">Select Size</h3>
-          <div className="flex flex-wrap gap-2">
+          <div className="flex items-center justify-between">
+            <h3 className="text-base font-semibold mb-3 text-gray-800">Select Size</h3>
+            <Link 
+              href="/size-guide"
+              target="_blank"
+              className="text-sm text-gray-500 hover:text-gray-800 underline mb-3"
+            >
+              Size Guide
+            </Link>
+          </div>
+          <div className="flex flex-wrap gap-2 md:gap-3">
             {product.sizes.map((size) => (
               <button
                 key={size}
@@ -27,7 +37,7 @@ export default function ProductDetailActions({ product }: ProductDetailActionsPr
                   selectedSize === size 
                     ? 'border-gray-800 bg-gray-100' 
                     : 'border-gray-300 hover:border-gray-400'
-                } text-gray-800 w-12 h-12 rounded-md text-sm font-medium transition-all`}
+                } text-gray-800 w-12 h-12 sm:w-14 sm:h-14 rounded-md text-sm font-medium transition-all transform hover:scale-105 active:scale-95`}
                 onClick={() => {
                   setSelectedSize(size);
                   setSizeError(false);
@@ -38,30 +48,50 @@ export default function ProductDetailActions({ product }: ProductDetailActionsPr
             ))}
           </div>
           {sizeError && (
-            <p className="mt-2 text-sm text-red-500">Please select a size</p>
+            <p className="mt-2 text-sm text-red-500 font-medium">Please select a size</p>
           )}
         </div>
       )}
 
       {/* Quantity selector */}
-      <div className="mb-4 flex items-center">
-        <label className="font-medium text-sm mr-4 text-gray-700">Quantity:</label>
-        <div className="flex items-center border border-gray-300 rounded-md bg-white">
-          <button 
-            className="px-3 py-2 text-gray-500 hover:text-gray-800 border-r border-gray-300"
-            onClick={() => setQuantity(prev => Math.max(1, prev - 1))}
-            aria-label="Decrease quantity"
-          >
-            -
-          </button>
-          <span className="px-3 py-2 min-w-[40px] text-center text-gray-800">{quantity}</span>
-          <button 
-            className="px-3 py-2 text-gray-500 hover:text-gray-800 border-l border-gray-300"
-            onClick={() => setQuantity(prev => prev + 1)}
-            aria-label="Increase quantity"
-          >
-            +
-          </button>
+      <div className="mb-6">
+        <label className="block text-base font-semibold mb-3 text-gray-800">Quantity</label>
+        <div className="flex items-center">
+          <div className="flex items-center border border-gray-300 rounded-md bg-white overflow-hidden">
+            <button 
+              className="w-10 h-10 sm:w-12 sm:h-12 flex items-center justify-center text-gray-500 hover:text-gray-800 hover:bg-gray-100 border-r border-gray-300 transition-colors"
+              onClick={() => setQuantity(prev => Math.max(1, prev - 1))}
+              aria-label="Decrease quantity"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 12H4" />
+              </svg>
+            </button>
+            <span className="w-12 h-10 sm:w-14 sm:h-12 flex items-center justify-center text-gray-800 font-medium">{quantity}</span>
+            <button 
+              className="w-10 h-10 sm:w-12 sm:h-12 flex items-center justify-center text-gray-500 hover:text-gray-800 hover:bg-gray-100 border-l border-gray-300 transition-colors"
+              onClick={() => setQuantity(prev => prev + 1)}
+              aria-label="Increase quantity"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+              </svg>
+            </button>
+          </div>
+          
+          <div className="ml-4 text-sm text-gray-500">
+            {product.in_stock ? (
+              <span className="flex items-center">
+                <span className="w-2 h-2 bg-green-500 rounded-full mr-2"></span>
+                In Stock
+              </span>
+            ) : (
+              <span className="flex items-center">
+                <span className="w-2 h-2 bg-red-500 rounded-full mr-2"></span>
+                Out of Stock
+              </span>
+            )}
+          </div>
         </div>
       </div>
 

@@ -103,26 +103,27 @@ export const fetchProductsFromSupabase = async (params?: any): Promise<Product[]
     try {
       updateConnectionStatus('connecting');
       
-      // Await params to fix the "searchParams should be awaited" error
-      const resolvedParams = params ? await Promise.resolve(params) : null;
-      
+      // Create a basic query with all fields
       let query = supabase.from('products').select('*');
 
-      // Apply filters if params are provided
-      if (resolvedParams?.category) {
-        query = query.eq('category', resolvedParams.category);
-      }
+      // Check if we need to apply filters
+      if (params) {
+        // Handle category filter if present
+        if (typeof params.category === 'string') {
+          query = query.eq('category', params.category);
+        }
 
-      if (resolvedParams?.is_best_seller) {
-        query = query.eq('is_best_seller', resolvedParams.is_best_seller);
-      }
-      
-      // Add appropriate columns to select based on the view context
-      // This helps performance by reducing data transfer
-      if (resolvedParams?.view === 'list') {
-        query = supabase.from('products').select('id, name, price, image, is_best_seller');
-      } else if (resolvedParams?.view === 'detail') {
-        query = supabase.from('products').select('*');
+        // Handle best seller filter if present
+        if (params.is_best_seller === 'true') {
+          query = query.eq('is_best_seller', true);
+        }
+        
+        // Select specific columns based on view
+        if (params.view === 'list') {
+          query = supabase.from('products').select('id, name, price, image, is_best_seller');
+        } else if (params.view === 'detail') {
+          query = supabase.from('products').select('*');
+        }
       }
 
       const { data, error } = await query.order('updated_at', { ascending: false });

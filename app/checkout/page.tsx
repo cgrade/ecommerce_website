@@ -72,16 +72,20 @@ export default function CheckoutPage() {
   }
   
   if (items.length === 0) {
-    // Create a temporary test product
     const addTestProduct = () => {
+      // Create a properly typed test product that matches Product interface
       const testProduct = {
-        id: 'test-product-1',
+        id: 'test-product-' + Math.random().toString(36).substring(7),
         name: 'Test Product',
-        price: 5000, // 5000 Naira
-        description: 'This is a test product for checkout',
-        image: '/placeholder.jpg',
+        price: 19.99,
+        description: 'This is a test product for demonstration purposes.',
+        image: '/images/placeholder.png',
+        image_urls: ['/images/placeholder.png'],
         stock: 10,
-        is_best_seller: false
+        is_best_seller: false,
+        sizes: ['S', 'M', 'L'],
+        in_stock: true,
+        quantity: 1
       };
       
       useCart.getState().addToCart(testProduct);
@@ -89,7 +93,7 @@ export default function CheckoutPage() {
       
       // Force a refresh after a short delay to ensure state updates
       setTimeout(() => {
-        window.location.reload();
+        router.refresh();
       }, 500);
     };
     
