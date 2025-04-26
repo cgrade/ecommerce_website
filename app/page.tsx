@@ -1,5 +1,6 @@
-import ProductCard from "./components/ProductCard";
 import HeroSlider from "./components/HeroSlider";
+import BestSellersSection from "./components/BestSellersSection";
+import ProductCard from "./components/ProductCard";
 import { fetchProducts } from "./lib/api";
 
 /**
@@ -10,22 +11,20 @@ export default async function Home() {
   const products = await fetchProducts();
 
   return (
-    <div>
+    <div className="bg-[#f9f9f9]">
       <HeroSlider />
-      <section className="py-12 bg-white">
-        <div className="container mx-auto px-4">
-          <h2 className="text-3xl font-bold mb-8 text-center text-black">
-            Best Sellers
-          </h2>
-          <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-            {products
-              .filter((product) => product.is_best_seller)
-              .map((product) => (
-                <ProductCard key={product.id} product={product} />
-              ))}
-          </div>
+      
+      {/* Best Sellers horizontal scrollable section */}
+      <BestSellersSection products={products} />
+      
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 py-10">
+        <h2 className="text-2xl font-bold text-gray-800 mb-6">All Products</h2>
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-x-4 gap-y-10">
+          {products.map((product) => (
+            <ProductCard key={product.id} product={product} />
+          ))}
         </div>
-      </section>
+      </div>
     </div>
   );
 }

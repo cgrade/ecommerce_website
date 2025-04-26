@@ -5,4 +5,65 @@
 /* Custom global styles */
 body {
   font-family: "Arial", sans-serif;
+  color: theme('colors.text.primary');
+  background-color: #f9f9f9; /* Milk/off-white background */
+}
+
+/* Black and white theme styles */
+@layer base {
+  h1, h2, h3, h4, h5, h6 {
+    color: #333333;
   }
+  
+  p {
+    color: #333333;
+  }
+  
+  a {
+    color: #333333;
+  }
+  
+  span {
+    color: inherit;
+  }
+  
+  button, .btn {
+    background-color: #0c1d2a;
+    color: white;
+    border: none;
+  }
+  
+  button:hover, .btn:hover {
+    background-color: #0e2436;
+  }
+  
+  input, select, textarea {
+    border: 1px solid #2c2c2c;
+    background-color: #1e1e1e;
+    color: white;
+  }
+  
+  /* Card styling */
+  .card {
+    background-color: #1e1e1e;
+    border: none;
+  }
+  
+  /* Ensure visibility in dark backgrounds */
+  .bg-primary, [class*='bg-primary'] {
+    color: theme('colors.secondary');
+  }
+  
+  .bg-secondary, [class*='bg-secondary'] {
+    color: theme('colors.text.primary');
+  }
+  
+  /* Text contrast helpers */
+  .text-on-dark {
+    color: theme('colors.secondary') !important;
+  }
+  
+  .text-on-light {
+    color: theme('colors.text.primary') !important;
+  }
+}

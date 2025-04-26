@@ -27,7 +27,8 @@ export async function POST(request: Request) {
     const fileName = `${Date.now()}_${file.name.replace(/\s+/g, '_')}`;
     
     // Upload to Supabase storage using admin client to bypass RLS
-    const { data, error } = await adminSupabase
+    // Correctly access the client property first 
+    const { data, error } = await adminSupabase.client
       .storage
       .from(BUCKET_NAME)
       .upload(fileName, fileData, {
@@ -52,7 +53,7 @@ export async function POST(request: Request) {
     }
     
     // Get the public URL for the uploaded file
-    const { data: { publicUrl } } = adminSupabase
+    const { data: { publicUrl } } = adminSupabase.client
       .storage
       .from(BUCKET_NAME)
       .getPublicUrl(data.path);

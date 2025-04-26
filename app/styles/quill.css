@@ -1,0 +1,46 @@
+/* React Quill Editor Styles */
+@import 'react-quill/dist/quill.snow.css';
+
+/* Custom Styles for Quill Editor in Black & White Theme */
+.quill .ql-toolbar {
+  background-color: white;
+  border-color: #777777;
+}
+
+.quill .ql-container {
+  background-color: white;
+  color: #333333;
+  border-color: #777777;
+}
+
+.quill .ql-editor {
+  min-height: 150px;
+}
+
+.quill .ql-picker-label {
+  color: #333333;
+}
+
+.quill .ql-stroke {
+  stroke: #333333;
+}
+
+.quill .ql-fill {
+  fill: #333333;
+}
+
+.quill .ql-active .ql-stroke {
+  stroke: #777777;
+}
+
+.quill .ql-active .ql-fill {
+  fill: #777777;
+}
+
+.quill .ql-toolbar button:hover .ql-stroke {
+  stroke: #777777;
+}
+
+.quill .ql-toolbar button:hover .ql-fill {
+  fill: #777777;
+}

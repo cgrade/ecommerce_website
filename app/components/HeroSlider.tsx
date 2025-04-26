@@ -43,26 +43,26 @@ export default function HeroSlider() {
   }, [slides.length]);
 
   return (
-    <section className="relative h-[80vh] bg-black text-white flex items-center">
+    <section className="relative h-[80vh] bg-background-dark text-secondary flex items-center">
       <div className="absolute inset-0">
         <Image
           src={slides[currentSlide].image}
           alt={slides[currentSlide].title}
           fill
-          className="object-cover opacity-70"
+          className="object-cover opacity-60"
           priority
         />
       </div>
       <div className="container mx-auto px-4 flex flex-col md:flex-row items-center z-10">
         {/* Text */}
-        <div className="md:w-1/2 text-center md:text-left">
-          <h1 className="text-4xl md:text-6xl font-bold mb-4">
+        <div className="md:w-1/2 text-center md:text-left relative">
+          <h1 className="text-4xl md:text-6xl font-bold mb-4 text-white drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)]">
             {slides[currentSlide].title}
           </h1>
-          <p className="text-lg mb-6">{slides[currentSlide].subtitle}</p>
+          <p className="text-lg mb-6 text-white drop-shadow-[0_2px_3px_rgba(0,0,0,0.7)]">{slides[currentSlide].subtitle}</p>
           <Link
             href="/products"
-            className="bg-green-500 text-white px-6 py-3 rounded-lg hover:bg-green-600"
+            className="bg-white text-primary px-8 py-3 rounded-lg hover:bg-accent hover:text-white border-2 border-primary font-bold shadow-[0_4px_10px_rgba(0,0,0,0.25)] transition-all duration-300 transform hover:scale-105"
           >
             Shop Now
           </Link>
@@ -75,7 +75,7 @@ export default function HeroSlider() {
             key={index}
             onClick={() => setCurrentSlide(index)}
             className={`w-3 h-3 rounded-full ${
-              currentSlide === index ? "bg-green-500" : "bg-gray-400"
+              currentSlide === index ? "bg-primary" : "bg-secondary opacity-60"
             }`}
           />
         ))}

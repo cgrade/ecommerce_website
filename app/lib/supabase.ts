@@ -2,56 +2,151 @@ import { createClient } from '@supabase/supabase-js';
 import { Product } from '../types/product';
 import { User } from '../types/user';
 
-// Initialize Supabase client - with proper error handling for build time
+// Define types for connection status monitoring
+type ConnectionStatus = 'connected' | 'connecting' | 'disconnected' | 'error';
+type ConnectionStatusListener = (status: ConnectionStatus) => void;
+
+// Connection status listeners
+const statusListeners: ConnectionStatusListener[] = [];
+
+// Initialize Supabase client with proper error handling
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
 const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 
-// Create a function that initializes the client when called
-// This prevents build-time errors when environment variables might be undefined
+// Max retry count for Supabase operations
+const MAX_RETRIES = 3;
+
+// Create a function that initializes the client with custom settings
 const getSupabaseClient = () => {
   if (!supabaseUrl) throw new Error('supabaseUrl is required');
   if (!supabaseAnonKey) throw new Error('supabaseAnonKey is required');
-  return createClient(supabaseUrl, supabaseAnonKey);
+  
+  // Create client with additional options for better performance and reliability
+  return createClient(supabaseUrl, supabaseAnonKey, {
+    auth: {
+      autoRefreshToken: true,
+      persistSession: true,
+    },
+    global: {
+      headers: {
+        'x-application-name': 'ecommerce-website'
+      },
+    },
+  });
 };
 
-// Client-side only initialization
+// Client-side only initialization with connection state management
 let supabaseClient: ReturnType<typeof createClient> | null = null;
+let connectionStatus: ConnectionStatus = 'disconnected';
+
+// Update connection status and notify listeners
+const updateConnectionStatus = (status: ConnectionStatus) => {
+  if (connectionStatus !== status) {
+    connectionStatus = status;
+    statusListeners.forEach(listener => listener(status));
+  }
+};
+
+// Function to subscribe to connection status changes
+export const onConnectionStatusChange = (listener: ConnectionStatusListener) => {
+  statusListeners.push(listener);
+  listener(connectionStatus); // Immediately call with current status
+  
+  // Return function to unsubscribe
+  return () => {
+    const index = statusListeners.indexOf(listener);
+    if (index !== -1) statusListeners.splice(index, 1);
+  };
+};
 
 // Gets the client or initializes it if it doesn't exist
 export const supabase = (() => {
   try {
     // Only initialize in browser environment
     if (typeof window !== 'undefined' && !supabaseClient) {
-      console.log('Initializing Supabase client with URL:', supabaseUrl?.substring(0, 15) + '...');
+      updateConnectionStatus('connecting');
+      console.log('Initializing Supabase client...');
       supabaseClient = getSupabaseClient();
+      
+      // Ping Supabase to verify connection
+      if (supabaseClient) {
+        const pingConnection = async () => {
+          try {
+            await supabaseClient.from('products').select('count').limit(1).single();
+            updateConnectionStatus('connected');
+          } catch (error: any) {
+            console.error('Connection verification failed:', error.message || error);
+            updateConnectionStatus('error');
+          }
+        };
+        pingConnection();
+      }
     }
-    return supabaseClient || getSupabaseClient();
+    // Return existing client or create a new one, ensuring we never return null
+    return supabaseClient ?? getSupabaseClient();
   } catch (error) {
+    updateConnectionStatus('error');
     console.error('Failed to initialize Supabase client:', error);
     throw error;
   }
 })();
 
 /**
- * @param {any} [params] - Optional query parameters for filtering.
- * @returns {Promise<Product[]>} List of products.
- * @description Fetches all products from Supabase.
+ * Fetches all products from Supabase with retry mechanism and performance optimizations
+ * @param {any} [params] - Optional query parameters for filtering
+ * @returns {Promise<Product[]>} List of products
  */
 export const fetchProductsFromSupabase = async (params?: any): Promise<Product[]> => {
-  let query = supabase.from('products').select('*');
+  let retryCount = 0;
+  
+  const executeQuery = async (): Promise<Product[]> => {
+    try {
+      updateConnectionStatus('connecting');
+      
+      // Await params to fix the "searchParams should be awaited" error
+      const resolvedParams = params ? await Promise.resolve(params) : null;
+      
+      let query = supabase.from('products').select('*');
 
-  // Ensure params is properly awaited if it's a promise
-  const resolvedParams = params instanceof Promise ? await params : params;
+      // Apply filters if params are provided
+      if (resolvedParams?.category) {
+        query = query.eq('category', resolvedParams.category);
+      }
 
-  if (resolvedParams?.q) {
-    query = query.ilike('name', `%${resolvedParams.q}%`);
-  }
+      if (resolvedParams?.is_best_seller) {
+        query = query.eq('is_best_seller', resolvedParams.is_best_seller);
+      }
+      
+      // Add appropriate columns to select based on the view context
+      // This helps performance by reducing data transfer
+      if (resolvedParams?.view === 'list') {
+        query = supabase.from('products').select('id, name, price, image, is_best_seller');
+      } else if (resolvedParams?.view === 'detail') {
+        query = supabase.from('products').select('*');
+      }
 
-  const { data, error } = await query;
-  if (error) {
-    throw new Error(error.message);
-  }
-  return data;
+      const { data, error } = await query.order('updated_at', { ascending: false });
+
+      if (error) throw error;
+      updateConnectionStatus('connected');
+      return data as Product[];
+    } catch (error: any) {
+      // Implement retry logic for retriable errors
+      if (retryCount < MAX_RETRIES && (error.code === 'PGRST116' || error.status === 408 || error.status === 500 || error.status === 503)) {
+        retryCount++;
+        console.log(`Retrying fetchProducts (${retryCount}/${MAX_RETRIES})...`);
+        const backoffTime = Math.min(1000 * (2 ** retryCount), 10000); // Exponential backoff with max of 10s
+        await new Promise(resolve => setTimeout(resolve, backoffTime));
+        return executeQuery();
+      }
+      
+      updateConnectionStatus('error');
+      console.error('Error fetching products:', error);
+      throw error;
+    }
+  };
+  
+  return executeQuery();
 };
 
 /**
@@ -88,9 +183,11 @@ export const addProductToSupabase = async (
         name: product.name,
         price: product.price,
         description: product.description,
-        image: product.image,
+        image: product.image, // deprecated, for backward compatibility
+        image_urls: product.image_urls || [],
         stock: product.stock,
-        is_best_seller: product.is_best_seller
+        is_best_seller: product.is_best_seller,
+        sizes: product.sizes || []
       })
       .select()
       .single();
@@ -123,6 +220,8 @@ export const updateProductInSupabase = async (
     if (product.price !== undefined) updateData.price = product.price;
     if (product.description !== undefined) updateData.description = product.description;
     if (product.image !== undefined) updateData.image = product.image;
+    if (product.image_urls !== undefined) updateData.image_urls = product.image_urls;
+    if (product.sizes !== undefined) updateData.sizes = product.sizes;
     if (product.stock !== undefined) updateData.stock = product.stock;
     if (product.is_best_seller !== undefined) updateData.is_best_seller = product.is_best_seller;
     

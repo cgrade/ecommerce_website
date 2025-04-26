@@ -53,16 +53,24 @@ export const useCart = create<CartState>()(
       // Add to cart method
       addToCart: (product) =>
         set((state) => {
-          const existingItem = state.cart.find((item) => item.id === product.id);
+          // If the product has a selectedSize, we need to check for the specific size
+          // This way users can add multiple sizes of the same product
+          const existingItemIndex = state.cart.findIndex((item) => 
+            item.id === product.id && 
+            (product.selectedSize ? item.selectedSize === product.selectedSize : true)
+          );
+          
           let newCart;
           
-          if (existingItem) {
-            newCart = state.cart.map((item) =>
-              item.id === product.id
+          if (existingItemIndex !== -1) {
+            // Update quantity of existing item with same size
+            newCart = state.cart.map((item, index) =>
+              index === existingItemIndex
                 ? { ...item, quantity: item.quantity + 1 }
                 : item
             );
           } else {
+            // Add as a new item
             newCart = [...state.cart, { ...product, quantity: 1 }];
           }
           

@@ -11,11 +11,13 @@ export default async function EditProductPage({
 }: {
   params: { id: string };
 }) {
-  const product = await fetchProductById(params.id);
+  // Properly await the params object before accessing its properties
+  const id = await Promise.resolve(params.id);
+  const product = await fetchProductById(id);
 
   return (
-    <div className="container mx-auto px-4 py-12 bg-white">
-      <h1 className="text-3xl font-bold mb-8 text-black">Edit Product</h1>
+    <div className="container mx-auto px-4 py-12 bg-background-light">
+      <h1 className="text-3xl font-bold mb-8 text-text-primary">Edit Product</h1>
       <ProductForm initialProduct={product} />
     </div>
   );

@@ -4,9 +4,9 @@ import { useState, useRef } from "react";
 import Image from "next/image";
 
 interface ImageUploaderProps {
-  onImageUploaded: (imageUrl: string) => void;
-  initialImage?: string;
-}
+  onImagesUploaded: (imageUrls: string[]) => void;
+  initialImages?: string[];
+} 
 
 /**
  * @param {Function} onImageUploaded - Callback function when image is uploaded.
@@ -14,54 +14,54 @@ interface ImageUploaderProps {
  * @returns {JSX.Element} The image uploader component.
  * @description Allows users to upload images and displays a preview.
  */
-export default function ImageUploader({ onImageUploaded, initialImage }: ImageUploaderProps) {
+export default function ImageUploader({ onImagesUploaded, initialImages = [] }: ImageUploaderProps) {
   const [isUploading, setIsUploading] = useState(false);
   const [uploadError, setUploadError] = useState<string | null>(null);
-  const [previewUrl, setPreviewUrl] = useState<string | null>(initialImage || null);
+  const [previewUrls, setPreviewUrls] = useState<string[]>(initialImages);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-
-    // Validate file type
-    if (!file.type.startsWith('image/')) {
-      setUploadError('Please select an image file (PNG, JPG, JPEG, etc.)');
+    const files = Array.from(e.target.files || []);
+    if (!files.length) return;
+    const validFiles = files.filter(file => file.type.startsWith('image/'));
+    if (!validFiles.length) {
+      setUploadError('Please select image files (PNG, JPG, JPEG, etc.)');
       return;
     }
-
-    // Create a preview
-    const reader = new FileReader();
-    reader.onload = () => {
-      setPreviewUrl(reader.result as string);
-    };
-    reader.readAsDataURL(file);
-
-    // Upload the file
-    await uploadFile(file);
+    // Show previews
+    const readers = validFiles.map(file => {
+      return new Promise<string>((resolve) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve(reader.result as string);
+        reader.readAsDataURL(file);
+      });
+    });
+    const previews = await Promise.all(readers);
+    setPreviewUrls([...previewUrls, ...previews]);
+    // Upload all files
+    await uploadFiles(validFiles);
   };
 
-  const uploadFile = async (file: File) => {
+  const uploadFiles = async (files: File[]) => {
     setIsUploading(true);
     setUploadError(null);
-
     try {
-      const formData = new FormData();
-      formData.append('file', file);
-
-      const response = await fetch('/api/upload', {
-        method: 'POST',
-        body: formData,
-      });
-
-      if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.error || 'Failed to upload image');
+      const urls: string[] = [];
+      for (const file of files) {
+        const formData = new FormData();
+        formData.append('file', file);
+        const response = await fetch('/api/upload', {
+          method: 'POST',
+          body: formData,
+        });
+        if (!response.ok) {
+          const error = await response.json();
+          throw new Error(error.error || 'Failed to upload image');
+        }
+        const data = await response.json();
+        urls.push(data.url);
       }
-
-      const data = await response.json();
-      setPreviewUrl(data.url);
-      onImageUploaded(data.url);
+      onImagesUploaded([...previewUrls, ...urls]);
     } catch (error: any) {
       console.error('Upload error:', error);
       setUploadError(error.message || 'Failed to upload image');
@@ -75,24 +75,28 @@ export default function ImageUploader({ onImageUploaded, initialImage }: ImageUp
     e.stopPropagation();
   };
 
-  const handleDrop = (e: React.DragEvent) => {
+  const handleDrop = async (e: React.DragEvent) => {
     e.preventDefault();
     e.stopPropagation();
 
-    const file = e.dataTransfer.files?.[0];
-    if (file && file.type.startsWith('image/')) {
-      // Create a preview
-      const reader = new FileReader();
-      reader.onload = () => {
-        setPreviewUrl(reader.result as string);
-      };
-      reader.readAsDataURL(file);
-
-      // Upload the file
-      uploadFile(file);
-    } else {
-      setUploadError('Please select an image file (PNG, JPG, JPEG, etc.)');
+    const files = Array.from(e.dataTransfer.files || []);
+    const validFiles = files.filter(file => file.type.startsWith('image/'));
+    if (!validFiles.length) {
+      setUploadError('Please select image files (PNG, JPG, JPEG, etc.)');
+      return;
     }
+    // Show previews
+    const readers = validFiles.map(file => {
+      return new Promise<string>((resolve) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve(reader.result as string);
+        reader.readAsDataURL(file);
+      });
+    });
+    const previews = await Promise.all(readers);
+    setPreviewUrls([...previewUrls, ...previews]);
+    // Upload all files
+    await uploadFiles(validFiles);
   };
 
   const triggerFileInput = () => {
@@ -109,14 +113,18 @@ export default function ImageUploader({ onImageUploaded, initialImage }: ImageUp
         onDragOver={handleDragOver}
         onDrop={handleDrop}
       >
-        {previewUrl ? (
-          <div className="relative w-full h-48 mx-auto">
-            <Image
-              src={previewUrl}
-              alt="Product image preview"
-              fill
-              className="object-contain"
-            />
+        {previewUrls.length > 0 ? (
+          <div className="flex flex-wrap gap-2 justify-center">
+            {previewUrls.map((url, idx) => (
+              <div key={idx} className="relative w-32 h-32">
+                <Image
+                  src={url}
+                  alt={`Product image preview ${idx+1}`}
+                  fill
+                  className="object-contain rounded"
+                />
+              </div>
+            ))}
           </div>
         ) : (
           <div className="py-8">
@@ -143,6 +151,7 @@ export default function ImageUploader({ onImageUploaded, initialImage }: ImageUp
         <input
           type="file"
           accept="image/*"
+          multiple
           className="hidden"
           onChange={handleFileChange}
           ref={fileInputRef}
@@ -154,9 +163,9 @@ export default function ImageUploader({ onImageUploaded, initialImage }: ImageUp
         <p className="mt-2 text-sm text-red-600">{uploadError}</p>
       )}
 
-      {previewUrl && (
+      {previewUrls.length > 0 && (
         <p className="mt-2 text-xs text-gray-500">
-          Click the image above to change it
+          Click any image above to change or add more images
         </p>
       )}
     </div>
