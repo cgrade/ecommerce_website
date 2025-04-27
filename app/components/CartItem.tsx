@@ -80,7 +80,7 @@ export default function CartItem({
             min="1"
             value={item.quantity}
             onChange={handleQuantityChange}
-            className="w-12 text-center py-1 border-x border-gray-300 focus:outline-none"
+            className="w-12 text-center py-1 border-x border-gray-300 focus:outline-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
           />
           <button 
             type="button"

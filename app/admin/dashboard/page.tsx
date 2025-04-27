@@ -10,7 +10,6 @@ import { fetchProductsFromSupabase } from "../../lib/supabase";
 import { deleteProduct } from "../../lib/api";
 import { Product } from "../../types/product";
 import Link from "next/link";
-import Image from "next/image";
 import { toast } from "react-hot-toast";
 import { formatPrice } from "../../utils/formatPrice";
 
@@ -93,30 +92,30 @@ export default function AdminDashboard() {
   return (
     <div className="container mx-auto px-4 py-12 bg-background-light">
       <div className="flex flex-col justify-between items-start mb-8 space-y-4 sm:space-y-0 sm:flex-row sm:items-center">
-        <h1 className="text-3xl font-bold text-text-primary">Admin Dashboard</h1>
+        <h1 className="text-2xl sm:text-3xl font-bold text-text-primary">Admin Dashboard</h1>
         <div className="flex flex-wrap gap-3 w-full sm:w-auto">
           <Link
             href="/admin/users"
-            className="bg-primary text-secondary px-6 py-3 rounded-lg hover:bg-accent transition-colors inline-flex items-center border border-primary"
+            className="bg-primary text-secondary sm:px-6 sm:py-3 px-4 py-2 rounded-lg hover:bg-accent transition-colors inline-flex items-center border border-primary text-sm sm:text-base"
           >
-            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 sm:h-5 sm:w-5 mr-1 sm:mr-2" viewBox="0 0 20 20" fill="currentColor">
               <path d="M9 6a3 3 0 11-6 0 3 3 0 016 0zM17 6a3 3 0 11-6 0 3 3 0 016 0zM12.93 17c.046-.327.07-.66.07-1a6.97 6.97 0 00-1.5-4.33A5 5 0 0119 16v1h-6.07zM6 11a5 5 0 015 5v1H1v-1a5 5 0 015-5z" />
             </svg>
             Manage Users
           </Link>
           <Link
             href="/admin/products/add"
-            className="bg-primary text-secondary px-6 py-3 rounded-lg hover:bg-accent transition-colors inline-flex items-center border border-primary ml-2"
+            className="bg-primary text-secondary sm:px-6 sm:py-3 px-4 py-2 rounded-lg hover:bg-accent transition-colors inline-flex items-center border border-primary ml-2 text-sm sm:text-base"
           >
-          <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
-            <path fillRule="evenodd" d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z" clipRule="evenodd" />
-          </svg>
-          Add New Product
-        </Link>
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 sm:h-5 sm:w-5 mr-1 sm:mr-2" viewBox="0 0 20 20" fill="currentColor">
+              <path fillRule="evenodd" d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z" clipRule="evenodd" />
+            </svg>
+            Add New Product
+          </Link>
         </div>
       </div>
       
-      <div className="bg-background-light rounded-lg shadow-md p-6 mb-8 border border-accent">
+      <div className="bg-background-light rounded-lg shadow-md p-4 sm:p-6 mb-6 sm:mb-8 border border-accent">
         <div className="mb-6">
           <label htmlFor="search" className="block text-sm font-medium text-text-primary mb-2">Search Products</label>
           <input
@@ -155,9 +154,6 @@ export default function AdminDashboard() {
                             src={product.image} 
                             alt={product.name}
                             className="h-10 w-10 rounded-md object-cover"
-                            onError={(e) => {
-                              (e.target as HTMLImageElement).src = 'https://via.placeholder.com/150';
-                            }}
                           />
                         ) : (
                           <div className="h-10 w-10 rounded-md bg-accent bg-opacity-20 flex items-center justify-center text-text-primary">
@@ -210,67 +206,60 @@ export default function AdminDashboard() {
         </div>
         
         {/* Mobile Card View */}
-        <div className="md:hidden space-y-4">
-          {filteredProducts.length > 0 ? (
-            filteredProducts.map((product) => (
-              <div key={product.id} className="bg-background-light border border-accent rounded-lg shadow-sm p-4">
-                <div className="flex items-start space-x-4">
-                  {/* Product Image */}
-                  <div className="flex-shrink-0">
-                    {product.image ? (
-                      <img 
-                        src={product.image} 
-                        alt={product.name}
-                        className="h-16 w-16 rounded-md object-cover"
-                        onError={(e) => {
-                          (e.target as HTMLImageElement).src = 'https://via.placeholder.com/150';
-                        }}
-                      />
-                    ) : (
-                      <div className="h-16 w-16 rounded-md bg-accent bg-opacity-20 flex items-center justify-center text-text-primary">
-                        <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                        </svg>
-                      </div>
-                    )}
-                  </div>
-                  
-                  {/* Product Details */}
-                  <div className="flex-1 min-w-0">
-                    <h3 className="text-base font-medium text-text-primary truncate">{product.name}</h3>
-                    <p className="mt-1 text-sm text-text-muted truncate">
-                      {product.description?.substring(0, 50)}{product.description?.length > 50 ? '...' : ''}
-                    </p>
+        <div className="grid grid-cols-1 gap-3 sm:hidden">
+          {filteredProducts.length > 0 ? filteredProducts.map((product) => (
+            <div key={product.id} className="bg-background-light border border-accent rounded-lg shadow-sm p-3">
+              <div className="flex items-start space-x-3">
+                {/* Product Image */}
+                <div className="flex-shrink-0">
+                  {product.image ? (
+                    <img 
+                      src={product.image} 
+                      alt={product.name}
+                      className="h-12 w-12 sm:h-16 sm:w-16 rounded-md object-cover"
+                    />
+                  ) : (
+                    <div className="h-12 w-12 sm:h-16 sm:w-16 bg-gray-200 rounded-md flex items-center justify-center">
+                      <span className="text-xs sm:text-sm text-gray-500">No image</span>
+                    </div>
+                  )}
+                </div>
+                
+                {/* Product Details */}
+                <div className="flex-1 min-w-0">
+                  <h3 className="text-base font-medium text-text-primary truncate">{product.name}</h3>
+                  <p className="mt-1 text-sm text-text-muted truncate">
+                    {product.description?.substring(0, 50)}{product.description?.length > 50 ? '...' : ''}
+                  </p>
                     
-                    <div className="mt-2 flex items-center justify-between">
-                      <div className="flex items-center">
-                        <span className="text-sm font-medium text-text-primary">{formatPrice(product.price)}</span>
-                        <span className={`ml-2 px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${product.is_best_seller ? 'bg-primary text-secondary' : 'bg-accent bg-opacity-20 text-text-primary'}`}>
-                          {product.is_best_seller ? 'Best Seller' : 'Regular'}
-                        </span>
-                      </div>
-                      
-                      <div className="flex space-x-2">
-                        <Link
-                          href={`/admin/products/edit/${product.id}`}
-                          className="inline-flex items-center px-2.5 py-1.5 border border-primary text-xs font-medium rounded text-primary hover:bg-primary hover:text-secondary focus:outline-none transition-colors"
-                        >
-                          Edit
-                        </Link>
-                        <button
-                          onClick={() => handleDeleteProduct(product.id)}
-                          disabled={isDeleting === product.id}
-                          className="inline-flex items-center px-2.5 py-1.5 border border-primary text-xs font-medium rounded text-primary hover:bg-primary hover:text-secondary focus:outline-none transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                        >
-                          {isDeleting === product.id ? 'Deleting...' : 'Delete'}
-                        </button>
-                      </div>
+                  <div className="mt-2 flex items-center justify-between">
+                    <div className="flex items-center">
+                      <span className="text-sm font-medium text-text-primary">{formatPrice(product.price)}</span>
+                      <span className={`ml-2 px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${product.is_best_seller ? 'bg-primary text-secondary' : 'bg-accent bg-opacity-20 text-text-primary'}`}>
+                        {product.is_best_seller ? 'Best Seller' : 'Regular'}
+                      </span>
+                    </div>
+                    
+                    <div className="flex space-x-2">
+                      <Link
+                        href={`/admin/products/edit/${product.id}`}
+                        className="inline-flex items-center px-2 py-1 border border-primary text-xs font-medium rounded text-primary hover:bg-primary hover:text-secondary focus:outline-none transition-colors"
+                      >
+                        Edit
+                      </Link>
+                      <button
+                        onClick={() => handleDeleteProduct(product.id)}
+                        disabled={isDeleting === product.id}
+                        className="inline-flex items-center px-2 py-1 border border-primary text-xs font-medium rounded text-primary hover:bg-primary hover:text-secondary focus:outline-none transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                      >
+                        {isDeleting === product.id ? 'Deleting...' : 'Delete'}
+                      </button>
                     </div>
                   </div>
                 </div>
               </div>
-            ))
-          ) : (
+            </div>
+          )) : (
             <div className="text-center py-8 text-text-muted">
               No products found matching your search.
             </div>

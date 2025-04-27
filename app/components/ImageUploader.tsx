@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import Image from "next/image";
 
 interface ImageUploaderProps {
@@ -17,7 +17,12 @@ interface ImageUploaderProps {
 export default function ImageUploader({ onImagesUploaded, initialImages = [] }: ImageUploaderProps) {
   const [isUploading, setIsUploading] = useState(false);
   const [uploadError, setUploadError] = useState<string | null>(null);
-  const [previewUrls, setPreviewUrls] = useState<string[]>(initialImages);
+  const [previewUrls, setPreviewUrls] = useState<string[]>([]);
+  
+  // Safely handle initialImages on client-side only
+  useEffect(() => {
+    setPreviewUrls(initialImages);
+  }, [initialImages]);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -117,11 +122,11 @@ export default function ImageUploader({ onImagesUploaded, initialImages = [] }: 
           <div className="flex flex-wrap gap-2 justify-center">
             {previewUrls.map((url, idx) => (
               <div key={idx} className="relative w-32 h-32">
-                <Image
+                {/* Use img tag instead of Next.js Image to avoid SSR issues */}
+                <img
                   src={url}
                   alt={`Product image preview ${idx+1}`}
-                  fill
-                  className="object-contain rounded"
+                  className="object-contain rounded w-full h-full"
                 />
               </div>
             ))}

@@ -108,27 +108,33 @@ export const fetchProductsFromSupabase = async (params?: any): Promise<Product[]
 
       // Check if we need to apply filters
       if (params) {
+        // Make a safe copy of params to avoid issues with searchParams
+        const safeParams = { ...params };
+        
         // Handle category filter if present
-        if (typeof params.category === 'string') {
-          query = query.eq('category', params.category);
+        if (typeof safeParams.category === 'string') {
+          query = query.eq('category', safeParams.category);
         }
 
         // Handle best seller filter if present
-        if (params.is_best_seller === 'true') {
+        if (safeParams.is_best_seller === 'true') {
           query = query.eq('is_best_seller', true);
         }
         
         // Select specific columns based on view
-        if (params.view === 'list') {
+        if (safeParams.view === 'list') {
           query = supabase.from('products').select('id, name, price, image, is_best_seller');
-        } else if (params.view === 'detail') {
+        } else if (safeParams.view === 'detail') {
           query = supabase.from('products').select('*');
         }
       }
 
       const { data, error } = await query.order('updated_at', { ascending: false });
 
-      if (error) throw error;
+      if (error) {
+        console.error('Supabase query error:', JSON.stringify(error, null, 2));
+        throw new Error(`Supabase query error: ${error.message || 'Unknown error'}`);
+      }
       updateConnectionStatus('connected');
       return data as Product[];
     } catch (error: any) {
@@ -142,8 +148,8 @@ export const fetchProductsFromSupabase = async (params?: any): Promise<Product[]
       }
       
       updateConnectionStatus('error');
-      console.error('Error fetching products:', error);
-      throw error;
+      console.error('Error fetching products:', error instanceof Error ? error.message : JSON.stringify(error, null, 2));
+      throw error instanceof Error ? error : new Error('Unknown error fetching products');
     }
   };
   
@@ -177,30 +183,47 @@ export const addProductToSupabase = async (
   product: Omit<Product, 'id' | 'created_at'>
 ): Promise<Product> => {
   try {
-    // Explicitly specify the columns we want to insert
+    // Create a sanitized product object with all required fields and defaults
+    // Handle the image field - use first image_url if available or provide default for NOT NULL constraint
+    let mainImage = '';
+    if (product.image) {
+      mainImage = product.image;
+    } else if (Array.isArray(product.image_urls) && product.image_urls.length > 0) {
+      mainImage = product.image_urls[0];
+    }
+
+    const sanitizedProduct = {
+      name: product.name || '',
+      price: typeof product.price === 'number' ? product.price : 0,
+      description: product.description || '',
+      image: mainImage, // Must not be null due to database constraint
+      image_urls: Array.isArray(product.image_urls) ? product.image_urls : [],
+      stock: typeof product.stock === 'number' ? product.stock : 0,
+      is_best_seller: !!product.is_best_seller, // Ensure boolean type
+      sizes: Array.isArray(product.sizes) ? product.sizes : []
+      // Removed category field as it doesn't exist in the database schema
+    };
+    
+    // Insert the product with sanitized data
     const { data, error } = await supabase
       .from('products')
-      .insert({
-        name: product.name,
-        price: product.price,
-        description: product.description,
-        image: product.image, // deprecated, for backward compatibility
-        image_urls: product.image_urls || [],
-        stock: product.stock,
-        is_best_seller: product.is_best_seller,
-        sizes: product.sizes || []
-      })
+      .insert(sanitizedProduct)
       .select()
       .single();
 
     if (error) {
-      console.error('Supabase error:', error);
-      throw new Error(error.message);
+      console.error('Supabase error:', JSON.stringify(error, null, 2));
+      throw new Error(`Supabase error: ${error.message || 'Unknown error'}`);
     }
+    
+    if (!data) {
+      throw new Error('Product was created but no data was returned');
+    }
+    
     return data;
   } catch (error: any) {
-    console.error('Error adding product:', error);
-    throw error;
+    console.error('Error adding product:', error instanceof Error ? error.message : JSON.stringify(error, null, 2));
+    throw error instanceof Error ? error : new Error('Unknown error adding product');
   }
 };
 

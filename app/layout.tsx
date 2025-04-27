@@ -12,8 +12,8 @@ import { NextAuthProvider } from "./providers";
  * @description Defines metadata for SEO and site information.
  */
 export const metadata: Metadata = {
-  title: "Elvix - clothings",
-  description: "Shop the best designer Clothings.",
+  title: "Elegent - Premium Fashion",
+  description: "Shop the best designer clothing and accessories.",
 };
 
 /**
@@ -27,7 +27,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning={true}>
       <body suppressHydrationWarning={true}>
         <NextAuthProvider>
           <Header />

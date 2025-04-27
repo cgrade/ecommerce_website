@@ -6,6 +6,8 @@ import { useRouter } from 'next/navigation';
 import FlutterwavePayment from '../components/FlutterwavePayment';
 import { useCart } from '../hooks/useCart';
 import { toast } from 'react-hot-toast';
+import PageContainer from '../components/PageContainer';
+import Link from 'next/link';
 
 /**
  * @returns {JSX.Element} The checkout page component.
@@ -98,46 +100,40 @@ export default function CheckoutPage() {
     };
     
     return (
-      <div className="container mx-auto px-4 py-12 max-w-4xl text-center">
-        <h1 className="text-3xl font-bold mb-4 text-gray-800">Your cart is empty</h1>
-        <p className="text-gray-600 mb-6">Add some products to your cart before checking out</p>
-        
-        <div className="flex flex-col md:flex-row gap-4 justify-center">
-          <button
-            onClick={() => router.push('/products')}
-            className="bg-blue-500 hover:bg-blue-600 text-white px-6 py-2 rounded-md transition-colors"
-          >
-            Browse Products
-          </button>
+      <PageContainer title="Your Cart is Empty" subtitle="Add some products to your cart before checking out" className="text-center">
+        <div className="flex flex-col items-center justify-center py-10">
+          <div className="flex flex-col md:flex-row gap-4 justify-center w-full max-w-md">
+            <Link
+              href="/products"
+              className="bg-primary hover:bg-primary/90 text-white px-6 py-3 rounded-md transition-colors text-center font-medium"
+            >
+              Browse Products
+            </Link>
+            
+            {/* Debug button for testing */}
+            <button
+              onClick={addTestProduct}
+              className="border border-gray-300 hover:bg-gray-100 text-gray-700 px-6 py-3 rounded-md transition-colors font-medium"
+            >
+              Add Test Product
+            </button>
+          </div>
           
-          {/* Debug button for testing */}
-          <button
-            onClick={addTestProduct}
-            className="bg-purple-500 hover:bg-purple-600 text-white px-6 py-2 rounded-md transition-colors"
-          >
-            Add Test Product (Debug)
-          </button>
+          <div className="mt-8 text-sm text-gray-500">
+            <p>Not sure what to buy? Check out our <Link href="/products?is_best_seller=true" className="text-primary hover:underline">best sellers</Link></p>
+          </div>
         </div>
-        
-        <div className="mt-6 text-sm text-gray-500">
-          <p>Note: The debug button is for testing purposes only</p>
-        </div>
-      </div>
+      </PageContainer>
     );
   }
 
   return (
-    <div className="container mx-auto px-4 py-12 max-w-4xl">
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold mb-2 text-gray-800">Checkout</h1>
-        <p className="text-gray-600">Complete your purchase securely with Flutterwave</p>
-      </div>
-      
+    <PageContainer title="Checkout" subtitle="Complete your purchase securely with Flutterwave">
       <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
         <div className="md:col-span-2">
           {/* Order summary */}
-          <div className="bg-white p-6 rounded-lg shadow-md mb-6">
-            <h2 className="text-xl font-semibold mb-4">Order Summary</h2>
+          <div className="bg-white p-6 rounded-lg shadow-lg border border-gray-100 mb-6">
+            <h2 className="text-xl font-semibold mb-4 text-gray-800">Order Summary</h2>
             {items.map((item: any) => (
               <div key={item.id} className="flex justify-between mb-2 py-2 border-b">
                 <span className="flex-1">{item.name} × {item.quantity}</span>
@@ -153,8 +149,8 @@ export default function CheckoutPage() {
         
         <div className="md:col-span-1">
           {/* Payment section */}
-          <div className="bg-white p-6 rounded-lg shadow-md">
-            <h2 className="text-xl font-semibold mb-4">Payment</h2>
+          <div className="bg-white p-6 rounded-lg shadow-lg border border-gray-100 mb-6">
+            <h2 className="text-xl font-semibold mb-4 text-gray-800">Order Total</h2>
             <FlutterwavePayment
               amount={total}
               customerEmail={session?.user?.email || ''}
@@ -170,6 +166,6 @@ export default function CheckoutPage() {
         <p className="mt-2">You can use the test card: 5531 8866 5214 2950</p>
         <p>Expiry: 09/32, CVV: 564, OTP: 12345</p>
       </div>
-    </div>
+    </PageContainer>
   );
 }

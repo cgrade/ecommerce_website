@@ -2,6 +2,7 @@
 
 import { signIn } from "next-auth/react";
 import { useState, useEffect, Suspense } from "react";
+import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { toast } from "react-hot-toast";
 
@@ -58,57 +59,74 @@ function LoginForm() {
   };
 
   return (
-    <div className="max-w-md mx-auto bg-white p-8 rounded-lg shadow-md">
+    <div className="max-w-md mx-auto mt-10 bg-white p-8 rounded-lg shadow-lg">
+      <div className="text-center mb-8">
+        <h1 className="text-2xl font-bold text-gray-800 mb-2">Welcome Back</h1>
+        <p className="text-gray-600">Sign in to your account to continue</p>
+      </div>
+      
       {error && (
-        <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
-          {error}
+        <div className="bg-red-50 border-l-4 border-red-500 text-red-700 p-4 rounded-md mb-6">
+          <div className="flex items-center">
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+            </svg>
+            <span>{error}</span>
+          </div>
         </div>
       )}
       
-      <form onSubmit={handleSubmit} className="space-y-4">
-        <div className="mb-4">
-          <label htmlFor="email" className="block text-gray-700 mb-2">Email</label>
-          <input
-            id="email"
-            type="email"
-            placeholder="Email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            className="w-full p-2 border border-gray-300 rounded"
-            required
-            disabled={isLoading}
-          />
+      <form onSubmit={handleSubmit} className="space-y-6">
+        <div>
+          <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">Email Address</label>
+          <div className="relative">
+            <input
+              id="email"
+              type="email"
+              placeholder="your@email.com"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              className="w-full py-3 px-4 border border-gray-300 rounded-md focus:ring-2 focus:ring-primary focus:border-transparent transition-colors"
+              required
+              disabled={isLoading}
+            />
+          </div>
         </div>
         
-        <div className="mb-4">
-          <label htmlFor="password" className="block text-gray-700 mb-2">Password</label>
-          <input
-            id="password"
-            type="password"
-            placeholder="Password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            className="w-full p-2 border border-gray-300 rounded"
-            required
-            disabled={isLoading}
-          />
+        <div>
+          <div className="flex items-center justify-between mb-1">
+            <label htmlFor="password" className="block text-sm font-medium text-gray-700">Password</label>
+            <a href="/forgot-password" className="text-sm text-primary hover:text-primary/80 transition-colors">Forgot password?</a>
+          </div>
+          <div className="relative">
+            <input
+              id="password"
+              type="password"
+              placeholder="••••••••"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              className="w-full py-3 px-4 border border-gray-300 rounded-md focus:ring-2 focus:ring-primary focus:border-transparent transition-colors"
+              required
+              disabled={isLoading}
+            />
+          </div>
         </div>
         
         <button 
           type="submit" 
-          className={`bg-green-500 hover:bg-green-600 text-white py-3 px-6 rounded-md w-full font-medium transition-colors ${isLoading ? 'opacity-70 cursor-not-allowed' : ''}`}
+          className={`bg-primary hover:bg-primary/90 text-white py-3 px-6 rounded-md w-full font-medium transition-colors ${isLoading ? 'opacity-70 cursor-not-allowed' : ''}`}
           disabled={isLoading}
         >
-          {isLoading ? 'Logging in...' : 'Login'}
+          {isLoading ? 'Signing in...' : 'Sign In'}
         </button>
       </form>
       
       <div className="mt-6 text-center">
         <p className="text-gray-600">
-          Don't have an account?{" "}
-          <a href="/signup" className="text-green-500 hover:underline font-medium">
-            Sign Up
-          </a>
+          Don't have an account?{' '}
+          <Link href="/signup" className="text-primary hover:text-primary/80 font-medium">
+            Create an account
+          </Link>
         </p>
       </div>
     </div>
